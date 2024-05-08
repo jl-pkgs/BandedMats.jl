@@ -1,8 +1,8 @@
-using LinearAlgebra
-# SparseArrays
+export LU_gauss, LU_full, LU_band, LU_band_symmetry
 
 # 高斯消元法
-function LU_gauss(A)
+LU_gauss(A) = LU_gauss!(deepcopy(A))
+function LU_gauss!(A)
   n = size(A, 1)
   T = typeof(A)
   L = T(diagm(ones(n)))
@@ -14,19 +14,30 @@ function LU_gauss(A)
       f = A[j, i] / A[i, i]
       L[j, i] = f
       A[j, :] .= A[j, :] .- (f * r1)
-      # 为啥要引入U，这样已经求解完成了
       # L[:, 1] = A₁[j, :]
     end
   end
   (; L, U=A)
 end
 
-# Doolittle's method
-# > 可避免修改矩阵A
-function LU_full(a; symmetry=false)
+"""
+LU_full(a::AbstractArray; symmetry=false)
+
+Doolittle's method，可避免修改矩阵A。
+
+# 对称矩阵
+```math
+A = L U 
+A = L D L'
+U = D L', L = U' D^-1
+```
+"""
+function LU_full(a::AbstractMatrix{T}; symmetry=false) where {T}
   n = size(a, 1)
-  u = tri_upper(:u, n)
-  l = tri_lower(:l, n)
+  u = zeros(T, n, n)
+  l = zeros(T, n, n)
+  # u = tri_upper(:u, n)
+  # l = tri_lower(:l, n)
 
   for i = 1:n
     l[i, i] = 1
@@ -36,9 +47,6 @@ function LU_full(a; symmetry=false)
 
     if symmetry
       ## 对称矩阵的福利: L = U' D^-1
-      # A = L U 
-      # A = L D L'
-      # U = D L', L = U' D^-1
       for i2 = i+1:min(i + p, i + q, n)
         l[i2, i] = u[i, i2] / u[i, i]
       end
