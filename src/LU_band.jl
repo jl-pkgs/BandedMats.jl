@@ -18,7 +18,7 @@ function LU_band(B::BandedMat{T}) where {T}
   l = zeros(T, n, p)
   u = zeros(T, n, q + 1)
 
-  for i = 1:n
+  @inbounds for i = 1:n
     # l[i, p+1] = 1
     for j = i:min(i + q, n)
       u[i, j-i+1] = A[i, j-i+p+1]
@@ -52,7 +52,7 @@ function LU_band_full(A::AbstractMatrix{T}; p=2, q=1) where {T}
   u = zeros(T, n, n)
   l = zeros(T, n, n)
 
-  for i = 1:n
+  @inbounds for i = 1:n
     l[i, i] = 1
     for j = i:min(i + q, n)
       # u[i, j] = A[i, j] - sum(l[i, 1:i-1] .* u[1:i-1, j])

@@ -29,7 +29,6 @@ function LDL_solve(BL::BandedMat{T}, d::AbstractVector{T}, b::AbstractArray) whe
   ## L
   x[1] = b[1]
   @inbounds for i = 2:n
-    # x[i] = b[i] - sum(L[i, 1:i-1] .* x[1:i-1])
     x[i] = b[i]
     for j = max(i - p, 1):i-1
       x[i] -= L[i, j-i+p+1] * x[j]
@@ -42,7 +41,7 @@ function LDL_solve(BL::BandedMat{T}, d::AbstractVector{T}, b::AbstractArray) whe
     x[i] /= d[i]
     for k = i+1:min(i+p, n)
       x[i] -= L[k, i-k+p+1] * x[k] # U[i, k]
-      # x[i] -= U[i, k-i+1] * x[k]
+      # x[i] -= U[i, k] * x[k]
     end
   end
   x

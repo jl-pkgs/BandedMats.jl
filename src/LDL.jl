@@ -10,7 +10,7 @@ function LDL_band(B::BandedMat{T}; tol::Real=1e-10) where {T}
   d = zeros(T, n)
 
   # [i, j] => [i, j-i+p+1]
-  for i = 1:n
+  @inbounds for i = 1:n
     d[i] = A[i, p+1]
     for j = max(i-p,1):i-1
       # 1 <= j-i+p+1 <= p
@@ -43,7 +43,7 @@ function LDL_full(A::AbstractMatrix{T}, tol::Real=1e-10) where {T}
   L = zeros(T, n, n)
   d = zeros(T, n)
 
-  for i = 1:n
+  @inbounds for i = 1:n
     d[i] = A[i, i]
     for j = 1:i-1
       d[i] -= L[i, j]^2 * d[j]

@@ -7,7 +7,7 @@ function LU_gauss!(A::AbstractMatrix{T}) where {T}
   n = size(A, 1)
   L = zeros(T, size(A))
 
-  for i = 1:n-1
+  @inbounds for i = 1:n-1
     r1 = A[i, :]
     L[i, i] = 1
     # U[i, :] = r1
@@ -41,7 +41,7 @@ function LU_full(A::AbstractMatrix{T}) where {T}
   # u = tri_upper(:u, n)
   # l = tri_lower(:l, n)
 
-  for i = 1:n
+  @inbounds for i = 1:n
     l[i, i] = 1
     for j = i:n
       u[i, j] = A[i, j] - sum(l[i, 1:i-1] .* u[1:i-1, j])

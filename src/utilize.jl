@@ -17,7 +17,7 @@ end
 # 条带以外的元素填充为0
 function force_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
   n, m = size(A)
-  for i = 1:n
+  @inbounds for i = 1:n
     for j = 1:i-p-1 # 下三角
       A[i, j] = 0
     end
@@ -32,7 +32,7 @@ end
 function force_sym!(A::AbstractMatrix{T}) where {T}
   n, m = size(A)
   @assert n == m "check_sym: matrix is not square"
-  for i = 1:n
+  @inbounds for i = 1:n
     for j = 1:i-1
       A[i, j] = A[j, i]
     end
