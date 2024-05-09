@@ -12,18 +12,15 @@ mat_equal(x, y) = maximum(abs.(x - y)) <= 1e-10
   L, U = LU_gauss(A)
   @test mat_equal(L, l)
   @test mat_equal(U, u)
-  
+
   L, U = LU_full(A)
   @test mat_equal(L, l)
   @test mat_equal(U, u)
 end
 
-@testset "LU_band" begin
-  n = 6
-  p, q = 2, 1
-  A = rand(n, n)
+
+function test_LU_band(A; p, q)
   check_band!(A, p, q)
-  
   # 标准答案
   l, u = lu(A, NoPivot())
   u2 = band_zip(u, 0, q; type="kong")
@@ -37,4 +34,11 @@ end
   _l, _u = LU_band_full(A; p, q)
   @test _l ≈ l
   @test _u ≈ u
+end
+
+@testset "LU_band" begin
+  n = 6
+  test_LU_band(rand(n, n); p=2, q=1)
+  test_LU_band(rand(n, n); p=2, q=2)
+  test_LU_band(rand(n, n); p=2, q=3)
 end

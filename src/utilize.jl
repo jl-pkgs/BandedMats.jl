@@ -14,8 +14,10 @@ function Base.show(io::IO, x::AbstractBandMatrix{T}) where {T<:Real}
 end
 
 
-# 代数余子式; algebraic complement
-function complement(A::AbstractArray, i=1, j=1; verbose=false)
+"""
+代数余子式(algebraic complement)
+"""
+function complement(A::AbstractArray, i, j; verbose=false)
   i, j = j, i
   m, n = size(A)
   _A = A[setdiff(1:m, i), setdiff(1:n, j)]
@@ -23,9 +25,8 @@ function complement(A::AbstractArray, i=1, j=1; verbose=false)
   (-1)^(i + j) * det(_A)
 end
 
-function complement(A::AbstractArray)
-  R = similar(A)
-  fill!(R, 0)
+function complement(A::AbstractArray{T}) where {T}
+  R = zeros(T, size(A))
   m, n = size(A)
   for i = 1:m, j = 1:n
     R[i, j] = complement(A, i, j) # 代数余子式需要进行一次转置，才能得到A* = C'
