@@ -11,6 +11,7 @@ include("utilize.jl")
 include("LU.jl")
 include("LU_band.jl")
 include("LU_solve.jl")
+include("LDL_solve.jl")
 include("LDL.jl")
 
 end
