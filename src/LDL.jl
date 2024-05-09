@@ -6,7 +6,6 @@ function LDL_band(B::BandedMat{T}; tol::Real=1e-10) where {T}
   n, m = size(A)
   @assert (p == q) "LDL: matrix is not square"
 
-  # L = SymTridiagonal(zeros(n), zeros(n - 1))
   L = zeros(T, n, p)
   d = zeros(T, n)
 
@@ -19,7 +18,6 @@ function LDL_band(B::BandedMat{T}; tol::Real=1e-10) where {T}
     end
     abs(d[i]) < tol && error("LDL: matrix is not positive definite")
 
-    # L[i, i] = 1
     for j = i + 1:min(i + p, n)
       # 1 <= i-j+p+1 <= p
       L[j, i-j+p+1] = A[j, i-j+p+1]

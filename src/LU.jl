@@ -23,7 +23,7 @@ function LU_gauss!(A::AbstractMatrix{T}) where {T}
 end
 
 """
-LU_full(A::AbstractArray; symmetry=false)
+LU_full(A::AbstractArray)
 
 Doolittle's method，可避免修改矩阵A。
 
@@ -34,7 +34,7 @@ A = L D L'
 U = D L', L = U' D^-1
 ```
 """
-function LU_full(A::AbstractMatrix{T}; symmetry=false) where {T}
+function LU_full(A::AbstractMatrix{T}) where {T}
   n = size(A, 1)
   u = zeros(T, n, n)
   l = zeros(T, n, n)
@@ -46,18 +46,15 @@ function LU_full(A::AbstractMatrix{T}; symmetry=false) where {T}
     for j = i:n
       u[i, j] = A[i, j] - sum(l[i, 1:i-1] .* u[1:i-1, j])
     end
-
-    if symmetry
-      ## 对称矩阵的福利: L = U' D^-1
-      for i2 = i+1:min(i + p, i + q, n)
-        l[i2, i] = u[i, i2] / u[i, i]
-      end
-    else
-      # 一般矩阵
-      for i2 = i+1:n
-        l[i2, i] = (A[i2, i] - sum(l[i2, 1:i-1] .* u[1:i-1, i])) / u[i, i]
-      end
+    # 一般矩阵
+    for i2 = i+1:n
+      l[i2, i] = (A[i2, i] - sum(l[i2, 1:i-1] .* u[1:i-1, i])) / u[i, i]
     end
   end
   l, u
 end
+
+# ## 对称矩阵的福利: L = U' D^-1
+# for i2 = i+1:min(i + p, i + q, n)
+#   l[i2, i] = u[i, i2] / u[i, i]
+# end
