@@ -1,4 +1,4 @@
-name = "BandMatrices"
+name = "BandedMats"
 uuid = "1effaa55-788a-4a47-91fb-d4bdff55c3e7"
 authors = ["Dongdong Kong <kongdd@users.noreply.github.com>"]
 version = "0.1.0"

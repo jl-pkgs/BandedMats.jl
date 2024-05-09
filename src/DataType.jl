@@ -1,17 +1,17 @@
-abstract type AbstractBandMatrix{T} end
+abstract type AbstractBandMat{T} end
 
-Base.@kwdef struct BandMatrix{T} <: AbstractBandMatrix{T}
+Base.@kwdef struct BandMat{T} <: AbstractBandMat{T}
   data::AbstractMatrix{T} # how to check value
   p::Int
   q::Int
 
-  function BandMatrix(data::AbstractMatrix{T}, p::Int, q::Int) where {T}
-    check_band!(data, p, q) # 地址可能被修改
+  function BandMat(data::AbstractMatrix{T}, p::Int, q::Int) where {T}
+    force_band!(data, p, q) # 地址可能被修改
     new{T}(data, p, q)
   end
 end
 
-Base.@kwdef struct BandedMatrix{T} <: AbstractBandMatrix{T}
+Base.@kwdef struct BandedMat{T} <: AbstractBandMat{T}
   data::AbstractMatrix{T} # B
   p::Int
   q::Int
@@ -19,24 +19,24 @@ Base.@kwdef struct BandedMatrix{T} <: AbstractBandMatrix{T}
 end
 
 # 相互转换
-function BandedMatrix(data, p, q; type="kong", zipped=true)
+function BandedMat(data, p, q; type="kong", zipped=true)
   !zipped && (data = band_zip(data, p, q; type))
-  BandedMatrix(; data, p, q, type)
+  BandedMat(; data, p, q, type)
 end
 
-function BandedMatrix(b::BandMatrix; type="kong")
+function BandedMat(b::BandMat; type="kong")
   B = band_zip(b.data, b.p, b.q; type)
-  BandedMatrix(B, b.p, b.q, type)
+  BandedMat(B, b.p, b.q, type)
 end
 
-function BandMatrix(bd::BandedMatrix{T}) where {T}
+function BandMat(bd::BandedMat{T}) where {T}
   A = band_unzip(bd)
-  BandMatrix(A, bd.p, bd.q)
+  BandMat(A, bd.p, bd.q)
 end
 
 
 # 条带以外的元素填充为0
-function check_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
+function force_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
   n, m = size(A)
   for i = 1:n
     for j = 1:i-p-1 # 下三角
@@ -49,7 +49,7 @@ function check_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
   A
 end
 
-band_zip(b::BandMatrix) = band_zip(b.data, b.p, b.q)
+band_zip(b::BandMat) = band_zip(b.data, b.p, b.q)
 function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
   n, m = size(A)
   # B = zeros(T, p + q + 1, n)
@@ -77,9 +77,9 @@ function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
   B
 end
 
-band_unzip(bd::BandedMatrix) = band_unzip(bd.data, bd.p, bd.q; type=bd.type)
+band_unzip(bd::BandedMat) = band_unzip(bd.data, bd.p, bd.q; type=bd.type)
 function band_unzip(B::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
-  # function band_unzip(B::BandedMatrix{T}) where {T}
+  # function band_unzip(B::BandedMat{T}) where {T}
   # (; p, q, type) = B
   n = size(B, 1)
   A = zeros(T, n, n)

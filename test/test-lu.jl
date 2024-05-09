@@ -1,5 +1,5 @@
 using LinearAlgebra
-using BandMatrices
+using BandedMats
 using Test
 
 mat_equal(x, y) = maximum(abs.(x - y)) <= 1e-10
@@ -20,15 +20,15 @@ end
 
 
 function test_LU_band(A; p, q)
-  check_band!(A, p, q)
+  force_band!(A, p, q)
   # 标准答案
   l, u = lu(A, NoPivot())
   u2 = band_zip(u, 0, q; type="kong")
   l2 = band_zip(l, p, 0; type="kong")[:, 1:end-1]
 
   # 我的版本
-  B = BandedMatrix(A, p, q; type="kong", zipped=false)
-  # BD = BandedMatrix(B; type="kong")
+  B = BandedMat(A, p, q; type="kong", zipped=false)
+  # BD = BandedMat(B; type="kong")
   BL, BU = LU_band(B)
   @test BU.data ≈ u2
   @test BL.data ≈ l2

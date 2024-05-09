@@ -2,12 +2,12 @@
 
 # funcs = [:size, :-, :+]
 # for func in funcs
-#   @eval Base.$func(b::BandMatrix) = Base.$func(b.A)
+#   @eval Base.$func(b::BandMat) = Base.$func(b.A)
 # end
-# Base.getindex(x::BandMatrix, i, j) = x.A[i, j]
-# Base.setindex!(x::BandMatrix, v, i, j) = x.A[i, j] = v;
+# Base.getindex(x::BandMat, i, j) = x.A[i, j]
+# Base.setindex!(x::BandMat, v, i, j) = x.A[i, j] = v;
 
-function Base.show(io::IO, x::AbstractBandMatrix{T}) where {T<:Real}
+function Base.show(io::IO, x::AbstractBandMat{T}) where {T<:Real}
   printstyled(io, "$(typeof(x)): p = $(x.p), q = $(x.q) \n", color=:blue, underline=true)
   display(x.data)
   nothing

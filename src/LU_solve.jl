@@ -26,7 +26,7 @@ end
 
 ################################################################################
 ## 带状矩阵的版本, kong的数据压缩方式
-function solve_U(BU::BandedMatrix{T}, b::AbstractArray) where {T}
+function solve_U(BU::BandedMat{T}, b::AbstractArray) where {T}
   # [i, j] => [i, j - i + 1]     # 对于U
   (; q) = BU
   U = BU.data
@@ -45,7 +45,7 @@ function solve_U(BU::BandedMatrix{T}, b::AbstractArray) where {T}
   x
 end
 
-function solve_L(BL::BandedMatrix{T}, b::AbstractArray) where {T}
+function solve_L(BL::BandedMat{T}, b::AbstractArray) where {T}
   # [i, j] => [i, j - i + p + 1] # 对于L
   (; p) = BL
   L = BL.data

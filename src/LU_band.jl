@@ -1,5 +1,5 @@
 """
-    LU_band(B::BandedMatrix{T})
+    LU_band(B::BandedMat{T})
 
 带状矩阵的LU分解, Doolittle's method
 
@@ -11,7 +11,7 @@
 - [x] 有效的减少循环次数
 - [x] 压缩数据存储
 """
-function LU_band(B::BandedMatrix{T}) where {T}
+function LU_band(B::BandedMat{T}) where {T}
   (; p, q) = B
   A = B.data
   n = size(A, 1)
@@ -36,8 +36,8 @@ function LU_band(B::BandedMatrix{T}) where {T}
     end
   end
 
-  BL = BandedMatrix(l, p, 0; type="kong")
-  BU = BandedMatrix(u, 0, q; type="kong")
+  BL = BandedMat(l, p, 0; type="kong")
+  BU = BandedMat(u, 0, q; type="kong")
   BL, BU
 end
 

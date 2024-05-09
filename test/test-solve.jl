@@ -3,7 +3,7 @@
   p, q = 2, 1
   A = rand(n, n)
   b = rand(n, 1)
-  check_band!(A, p, q)
+  force_band!(A, p, q)
 
   r = A \ b
   L, U = LU_full(A)
@@ -19,10 +19,10 @@ end
   p, q = 2, 1
   A = rand(n, n)
   b = rand(n, 1)
-  check_band!(A, p, q)
+  force_band!(A, p, q)
   r = A \ b
 
-  B = BandedMatrix(A, p, q; type="kong", zipped=false)
+  B = BandedMat(A, p, q; type="kong", zipped=false)
   BL, BU = LU_band(B)
   
   r2 = solve_U(BU, solve_L(BL, b))

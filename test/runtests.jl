@@ -1,5 +1,5 @@
 using LinearAlgebra
-using BandMatrices
+using BandedMats
 using Test
 
 include("test-band.jl")
