@@ -2,6 +2,7 @@ using LinearAlgebra
 using BandedMats
 using Test
 
+include("test-inv_diag.jl")
 include("test-LDL.jl")
 include("test-LU.jl")
 include("test-band.jl")

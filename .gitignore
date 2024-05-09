@@ -1,4 +1,6 @@
 .vscode
 *.ipynb
 Manifest.toml
+
 *temp*
+*debug*
