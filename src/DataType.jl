@@ -4,12 +4,13 @@ Base.@kwdef struct BandMat{T} <: AbstractBandMat{T}
   data::AbstractMatrix{T} # how to check value
   p::Int
   q::Int
-
+  size = Base.size(data)
   function BandMat(data::AbstractMatrix{T}, p::Int, q::Int) where {T}
     force_band!(data, p, q) # 地址可能被修改
-    new{T}(data, p, q)
+    new{T}(data, p, q, size(data))
   end
 end
+BandMat(data, p, q; kw...) = BandMat(; data, p, q, kw...)
 
 Base.@kwdef struct BandedMat{T} <: AbstractBandMat{T}
   data::AbstractMatrix{T} # B
@@ -21,6 +22,7 @@ Base.@kwdef struct BandedMat{T} <: AbstractBandMat{T}
 
   function BandedMat(data::AbstractMatrix{T}, p::Int, q::Int, size, type, zipped) where {T}
     if !zipped
+      # force_band!(data, p, q)
       size = Base.size(data)
       data = band_zip(data, p, q; type)
     end
@@ -31,7 +33,7 @@ BandedMat(data, p, q; kw...) = BandedMat(; data, p, q, kw...)
 
 function BandedMat(b::BandMat; type="kong") 
   B = band_zip(b.data, b.p, b.q; type)
-  BandedMat(B, b.p, b.q; type)
+  BandedMat(B, b.p, b.q; type, size=size(b.data))
 end
 
 function BandMat(bd::BandedMat{T}) where {T}
@@ -83,16 +85,17 @@ function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
   return B
 end
 
-band_unzip(bd::BandedMat) = band_unzip(bd.data, bd.p, bd.q; type=bd.type)
-function band_unzip(B::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
+# band_unzip(bd::BandedMat) = band_unzip(bd.data, bd.p, bd.q; type=bd.type)
+function band_unzip(BD::BandedMat{T}) where {T}
   # function band_unzip(B::BandedMat{T}) where {T}
-  # (; p, q, type) = B
-  n = size(B, 1)
-  A = zeros(T, n, n)
+  (; p, q, type) = BD
+  n, m = BD.size
+  B = BD.data
+  A = zeros(T, n, m)
 
   if type == "lapack"
     @inbounds for i = 1:n
-      for j = max(i - p, 1):min(i + q, n)
+      for j = max(i - p, 1):min(i + q, m)
         # 0 <= i-j+q <= p+q  ==> i - p <= j <= i + q
         # B[j, i-j+q+1] = A[i, j]
         # A[i, j] = B[i-j+q+1, j]
@@ -101,7 +104,7 @@ function band_unzip(B::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
     end
   elseif type == "kong"
     @inbounds for i = 1:n
-      for k = max(-p, 1 - i):min(q, n - i)
+      for k = max(-p, 1 - i):min(q, m - i)
         A[i, i+k] = B[i, k+p+1]
       end
     end

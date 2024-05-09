@@ -8,7 +8,7 @@ using Test
 @testset "BandMat" begin
   p, q = 2, 1
   # A = Mat(:a, 5)
-  A = rand(5, 5)
+  A = rand(5, 4)
   b = BandMat(A, p, q)
   bd1 = BandedMat(b; type="lapack")
   bd2 = BandedMat(b; type="kong")
@@ -35,19 +35,19 @@ end
   mat_equal(transpose(b).data, bt.data)
 end
 
-# @testset "mult" 
-begin
-  A = rand(5, 4)
-  p, q = 1, 2
-  force_band!(A, p, q)
-  x = BandMat(A, p, q)
-  x2 = BandedMat(A, p, q; zipped=false)
+@testset "mult" begin
+  function test_mult(x, y)
+    x2 = BandedMat(x)
+    y2 = BandedMat(y)
+    @test x * y ≈ x.data * y.data
+    @test x2 * y2 ≈ x.data * y.data
+  end
 
-  B = rand(4, 10)
-  p, q = 2, 3
-  force_band!(B, p, q)
-  y = BandMat(B, p, q)
-  y2 = BandedMat(B, p, q; zipped=false)
-  # x * y ≈ A * B
+  x = BandMat(rand(5, 4), 1, 2)
+  y = BandMat(rand(4, 10), 2, 3)
+  test_mult(x, y)
+
+  x = BandMat(rand(5, 4), 1, 2)
+  y = BandMat(rand(4, 5), 2, 3)
+  test_mult(x, y)
 end
-# , r + q] # 列的最大值

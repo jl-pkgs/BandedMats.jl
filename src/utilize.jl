@@ -8,7 +8,8 @@
 function Base.show(io::IO, x::AbstractBandMat{T}) where {T<:Real}
   p = hasfield(typeof(x), :p) ? x.p : 0
   q = hasfield(typeof(x), :q) ? x.q : 0
-  printstyled(io, "$(typeof(x)): p = $p, q = $q \n", color=:blue, underline=true)
+  printstyled(io, "$(typeof(x)), size=$(x.size), bandwidth=($p, $q)\n", 
+    color=:green, underline=true)
   display(x.data)
   return nothing
 end
@@ -43,8 +44,8 @@ Base.adjoint(x::BandedMat) = transpose(x)
 function Base.:*(x::BandMat{T1}, y::BandMat{T2}) where {T1,T2}
   p₁, q₁ = x.p, x.q
   p₂, q₂ = y.p, y.q
-  n₁, m = size(x.data)
-  m, n₂ = size(y.data)
+  n₁, m = x.size
+  m, n₂ = y.size
 
   R = zeros(promote_type(T1, T2), n₁, n₂)
   @inbounds for i = 1:n₁
@@ -64,17 +65,15 @@ end
 function Base.:*(x::BandedMat{T1}, y::BandedMat{T2}) where {T1,T2}
   p₁, q₁ = x.p, x.q
   p₂, q₂ = y.p, y.q
-  n₁, m = size(x.data)
-  m, n₂ = size(y.data)
+  n₁, m = x.size
+  m, n₂ = y.size
 
   R = zeros(promote_type(T1, T2), n₁, n₂)
   @inbounds for i = 1:n₁
     for j = 1:n₂
-      k_min = max(min(i - p₁, j - q₂), 1)
-      k_max = min(max(i + q₁, j + p₂), m)
+      k_min = max(i - p₁, j - q₂, 1)
+      k_max = min(i + q₁, j + p₂, m)
       for k = k_min:k_max
-        # i - p₁ <= k <= i + q₁
-        # j - q₂ <= k <= j + p₂  <== -p₂ <= j - k <= q₂  
         R[i, j] += x.data[i, k-i+p₁+1] * y.data[k, j-k+p₂+1]
       end
     end
@@ -83,6 +82,8 @@ function Base.:*(x::BandedMat{T1}, y::BandedMat{T2}) where {T1,T2}
 end
 
 # 条带以外的元素填充为0
+force_band!(B::AbstractBandMat) = force_band!(B.data, B.p, B.q)
+
 function force_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
   n, m = size(A)
   @inbounds for i = 1:n
