@@ -22,10 +22,9 @@ end
   check_band!(A, p, q)
   r = A \ b
 
-  L, U = LU_band(A; p, q)
-  BL = BandedMatrix(L, p, 0)
-  BU = BandedMatrix(U, 0, q)
-
+  B = BandedMatrix(A, p, q; type="kong", zipped=false)
+  BL, BU = LU_band(B)
+  
   r2 = solve_U(BU, solve_L(BL, b))
   @test r2 ≈ r
 end

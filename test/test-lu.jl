@@ -27,9 +27,11 @@ function test_LU_band(A; p, q)
   l2 = band_zip(l, p, 0; type="kong")[:, 1:end-1]
 
   # 我的版本
-  L, U = LU_band(A; p, q)
-  @test U ≈ u2
-  @test L ≈ l2
+  B = BandedMatrix(A, p, q; type="kong", zipped=false)
+  # BD = BandedMatrix(B; type="kong")
+  BL, BU = LU_band(B)
+  @test BU.data ≈ u2
+  @test BL.data ≈ l2
 
   _l, _u = LU_band_full(A; p, q)
   @test _l ≈ l
