@@ -2,10 +2,10 @@ using LinearAlgebra
 using BandedMats
 using Test
 
+include("test-LDL.jl")
+include("test-LU.jl")
 include("test-band.jl")
-include("test-lu.jl")
 include("test-solve.jl")
-
 
 # # 代数余子式
 # @testset "complement" begin

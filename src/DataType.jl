@@ -35,19 +35,6 @@ function BandMat(bd::BandedMat{T}) where {T}
 end
 
 
-# 条带以外的元素填充为0
-function force_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
-  n, m = size(A)
-  for i = 1:n
-    for j = 1:i-p-1 # 下三角
-      A[i, j] = 0
-    end
-    for j = i+q+1:m # 上三角
-      A[i, j] = 0
-    end
-  end
-  A
-end
 
 band_zip(b::BandMat) = band_zip(b.data, b.p, b.q)
 function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}

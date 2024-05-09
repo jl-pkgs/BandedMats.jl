@@ -65,7 +65,6 @@ function LU_band_full(A::AbstractMatrix{T}; p=2, q=1) where {T}
     for i2 = i+1:min(i + p, n)
       # 若是对称矩阵，则直接上答案
       # l[i2, i] = u[i, i2] / u[i, i]
-
       # l[i2, i] = (A[i2, i] - sum(l[i2, 1:i-1] .* u[1:i-1, i])) / u[i, i]
       l[i2, i] = A[i2, i]
       for k = max(i2 - p, i - q, 1):min(i - 1, i2 - 1)

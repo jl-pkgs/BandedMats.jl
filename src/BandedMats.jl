@@ -4,7 +4,7 @@ module BandedMats
 # using SparseArrays
 
 export BandMat, BandedMat
-export band_zip, band_unzip, force_band!
+export band_zip, band_unzip, force_band!, force_sym!
 
 include("DataType.jl")
 include("utilize.jl")
