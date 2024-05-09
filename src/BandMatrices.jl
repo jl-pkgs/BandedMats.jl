@@ -4,7 +4,7 @@ using LinearAlgebra
 # using SparseArrays
 
 export BandMatrix, BandedMatrix
-export band_zip, band_unzip
+export band_zip, band_unzip, check_band!
 
 include("DataType.jl")
 include("band_zip.jl")
