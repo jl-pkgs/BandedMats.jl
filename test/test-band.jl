@@ -19,3 +19,17 @@ Vec(name, n) = variables(name, 1:n)
   @test maximum(abs.(r1)) <= 1e-10
   @test maximum(abs.(r2)) <= 1e-10
 end
+
+@testset "transpose" begin
+  A = rand(5, 5)
+  p, q = 1, 2
+  b = BandedMat(A, p, q; zipped=false)
+  bt = BandedMat(A', q, p; zipped=false)
+  mat_equal(transpose(b).data, bt.data)
+
+  A = rand(5, 5)
+  p, q = 2, 1
+  b = BandedMat(A, p, q; zipped=false)
+  bt = BandedMat(A', q, p; zipped=false)
+  mat_equal(transpose(b).data, bt.data)
+end

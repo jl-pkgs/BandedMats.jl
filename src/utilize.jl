@@ -15,6 +15,32 @@ function Base.show(io::IO, x::AbstractBandMat{T}) where {T<:Real}
   return nothing
 end
 
+## lapack
+# `A[i, j] => B[j, i - j + q + 1]`
+
+## kong
+# A[i, j] => B[i, j - i + p + 1]
+# A[j, i] => B[j, i - j + q + 1]
+function Base.transpose(x::BandedMat{T}) where {T}
+  # B[i, j-i+p+1] -> B[j, i - j + q + 1]
+  (; p, q) = x
+  n, m = size(x.data)
+  data = zeros(T, n, m)
+
+  for i = 1:n
+    for j = max(1, p - i + 2):min(m, p - i + 2 + m)
+      # _i = i
+      # _j = j + i - p - 1
+      # i2 = _j
+      # j2 = _i - _j + q + 1 = m - j + 1
+      data[j+i-p-1, m-j+1] = x.data[i, j]
+    end
+  end
+  BandedMat(data, q, p; type=x.type)
+end
+
+Base.adjoint(x::BandedMat) = transpose(x)
+
 
 # 条带以外的元素填充为0
 function force_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
