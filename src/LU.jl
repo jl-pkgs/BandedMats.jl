@@ -1,4 +1,5 @@
 export LU_gauss, LU_full, LU_band, LU_band_symmetry
+export LU_band_full
 
 # 高斯消元法
 LU_gauss(A) = LU_gauss!(deepcopy(A))
@@ -60,50 +61,71 @@ function LU_full(A::AbstractMatrix{T}; symmetry=false) where {T}
   l, u
 end
 
-# 带状矩阵的LU分解, Doolittle's method
-# - [x] 有效的减少循环次数
-# - [x] 压缩数据存储
-function LU_band(A::AbstractMatrix{T}; p=2, q=1, symmetry=false) where{T}
-  p != q && (symmetry = false)
-  n = size(A, 1)
 
-  l = zeros(T, n, p)
-  u = zeros(T, n, q + 1)
+"""
+带状矩阵的原始矩阵解法
+
+与LU_full类似，只是求解的过程中，跳过了空值的部分
+"""
+function LU_band_full(A::AbstractMatrix{T}; p=2, q=1) where {T}
+  n = size(A, 1)
+  u = zeros(T, n, n)
+  l = zeros(T, n, n)
 
   for i = 1:n
+    l[i, i] = 1
     for j = i:min(i + q, n)
-      u[i, j-i+1] = A[i, j]
+      # u[i, j] = A[i, j] - sum(l[i, 1:i-1] .* u[1:i-1, j])
+      u[i, j] = A[i, j]
       for k = max(i - p, j - q, 1):min(i - 1, j - 1)
-        # 1 <= j - k <= q  ==> j - q <= k <= j - 1
-        # 1 <= i - k <= p  ==> i - p <= k <= i - 1
-        u[i, j-i+1] -= l[k, i-k] * u[k, j-k+1]
+        u[i, j] -= l[i, k] * u[k, j]
       end
     end
 
-    if symmetry
-      # 对称矩阵的福利: L = U' D^-1
-      for i2 = i+1:min(i + p, i + q, n)
-        # 0 <= i2 - i <= q ==> i <= i2 <= q+i
-        l[i, i2-i] = u[i, i2-i+1] / u[i, 1] # u[i, i2]
-      end
+    for i2 = i+1:min(i + p, n)
+      # 若是对称矩阵，则直接上答案
+      # l[i2, i] = u[i, i2] / u[i, i]
 
-    else
-      # 一般带状矩阵
-      for i2 = i+1:min(i + p, n)
-        l[i, i2-i] = A[i2, i]
-        # 1 <= i - k <= q  ==> i - q <= k <= i - 1
-        # 1 <= i2 - k <= p  ==> i2 - p <= k <= i2 - 1
-        for k = max(i2 - p, i - q, 1):min(i - 1, i2 - 1)
-          l[i, i2-i] -= l[k, i2-k] * u[k, i-k+1]
-        end
-        l[i, i2-i] /= u[i, 1]
+      # l[i2, i] = (A[i2, i] - sum(l[i2, 1:i-1] .* u[1:i-1, i])) / u[i, i]
+      l[i2, i] = A[i2, i]
+      for k = max(i2 - p, i - q, 1):min(i - 1, i2 - 1)
+        l[i2, i] -= l[i2, k] * u[k, i]
       end
-      
-    end # endif symmetry
+      l[i2, i] /= u[i, i]
+    end
   end
   l, u
 end
 
+# 带状矩阵的LU分解, Doolittle's method
+# - [x] 有效的减少循环次数
+# - [x] 压缩数据存储
+function LU_band(A::AbstractMatrix{T}; p=2, q=1) where {T}
+  n = size(A, 1)
+  l = zeros(T, n, p)
+  u = zeros(T, n, q + 1)
+
+  # [i, j] => [i, j - i + p + 1] # 对于L
+  # [i, j] => [i, j - i + 1]     # 对于U
+  for i = 1:n
+    # l[i, p+1] = 1
+    for j = i:min(i + q, n)
+      u[i, j-i+1] = A[i, j]
+      for k = max(i - p, j - q, 1):min(i - 1, j - 1)
+        u[i, j-i+1] -= l[i, k-i+p+1] * u[k, j-k+1]
+      end
+    end
+
+    for i2 = i+1:min(i + p, n)
+      l[i2, i-i2+p+1] = A[i2, i]
+      for k = max(i2 - p, i - q, 1):min(i - 1, i2 - 1)
+        l[i2, i-i2+p+1] -= l[i2, k-i2+p+1] * u[k, i-k+1]
+      end
+      l[i2, i-i2+p+1] /= u[i, 1]
+    end
+  end
+  l, u
+end
 
 # function LU_band_symmetry(A; p=2, q=1)
 #   n = size(A, 1)
@@ -125,14 +147,4 @@ end
 #     end
 #   end
 #   l, u
-# end
-
-# function zip_U(U::AbstractMatrix, q)
-#   U2 = variables(:U, 1:n, 1:q+1)
-#   fill!(U2, 0)
-#   for i = 1:n, j = i:min(n, q + i)
-#     # 0 <= j-i <= q ==> i <= j <= q+i
-#     U2[i, j-i+1] = U[i, j]
-#   end
-#   U2
 # end

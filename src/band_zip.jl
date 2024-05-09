@@ -18,8 +18,8 @@ function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="lapack") where {T}
       for k = max(-p, 1 - i):min(q, m - i)
         # 1 <= i + k <= m ==> 1 - i <= k <= m - i
         B[i, k+p+1] = A[i, i+k]
-        # (k + p + 1) - (i + k) = p + 1 - i
-        # A[i, j] => B[i, p + 1 - i]
+        # j = i+k
+        # A[i, j] => B[i, j - i + p + 1]
       end
     end
   end
@@ -51,3 +51,13 @@ function band_unzip(B::AbstractMatrix{T}, p::Int, q::Int; type="lapack") where {
   end
   A
 end
+
+# function zip_U(U::AbstractMatrix, q)
+#   U2 = variables(:U, 1:n, 1:q+1)
+#   fill!(U2, 0)
+#   for i = 1:n, j = i:min(n, q + i)
+#     # 0 <= j-i <= q ==> i <= j <= q+i
+#     U2[i, j-i+1] = U[i, j]
+#   end
+#   U2
+# end
