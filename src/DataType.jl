@@ -15,18 +15,23 @@ Base.@kwdef struct BandedMat{T} <: AbstractBandMat{T}
   data::AbstractMatrix{T} # B
   p::Int
   q::Int
+  size = size(data) # original data size
   type = "kong" # "kong", "lapack"
-end
+  zipped::Bool = true
 
-# 相互转换
-function BandedMat(data, p, q; type="kong", zipped=true)
-  !zipped && (data = band_zip(data, p, q; type))
-  BandedMat(; data, p, q, type)
+  function BandedMat(data::AbstractMatrix{T}, p::Int, q::Int, size, type, zipped) where {T}
+    if !zipped
+      size = Base.size(data)
+      data = band_zip(data, p, q; type)
+    end
+    new{T}(data, p, q, size, type, zipped)
+  end
 end
+BandedMat(data, p, q; kw...) = BandedMat(; data, p, q, kw...)
 
-function BandedMat(b::BandMat; type="kong")
+function BandedMat(b::BandMat; type="kong") 
   B = band_zip(b.data, b.p, b.q; type)
-  BandedMat(B, b.p, b.q, type)
+  BandedMat(B, b.p, b.q; type)
 end
 
 function BandMat(bd::BandedMat{T}) where {T}

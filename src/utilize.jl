@@ -1,5 +1,3 @@
-# include("main_symb.jl")
-
 # funcs = [:size, :-, :+]
 # for func in funcs
 #   @eval Base.$func(b::BandMat) = Base.$func(b.A)
@@ -41,6 +39,48 @@ end
 
 Base.adjoint(x::BandedMat) = transpose(x)
 
+
+function Base.:*(x::BandMat{T1}, y::BandMat{T2}) where {T1,T2}
+  p₁, q₁ = x.p, x.q
+  p₂, q₂ = y.p, y.q
+  n₁, m = size(x.data)
+  m, n₂ = size(y.data)
+
+  R = zeros(promote_type(T1, T2), n₁, n₂)
+  @inbounds for i = 1:n₁
+    for j = 1:n₂
+      k_min = max(min(i - p₁, j - q₂), 1)
+      k_max = min(max(i + q₁, j + p₂), m)
+      for k = k_min:k_max
+        # i - p₁ <= k <= i + q₁
+        # j - q₂ <= k <= j + p₂  <== -p₁ <= j - k <= q₂  
+        R[i, j] += x.data[i, k] * y.data[k, j]
+      end
+    end
+  end
+  return R
+end
+
+function Base.:*(x::BandedMat{T1}, y::BandedMat{T2}) where {T1,T2}
+  p₁, q₁ = x.p, x.q
+  p₂, q₂ = y.p, y.q
+  n₁, m = size(x.data)
+  m, n₂ = size(y.data)
+
+  R = zeros(promote_type(T1, T2), n₁, n₂)
+  @inbounds for i = 1:n₁
+    for j = 1:n₂
+      k_min = max(min(i - p₁, j - q₂), 1)
+      k_max = min(max(i + q₁, j + p₂), m)
+      for k = k_min:k_max
+        # i - p₁ <= k <= i + q₁
+        # j - q₂ <= k <= j + p₂  <== -p₂ <= j - k <= q₂  
+        R[i, j] += x.data[i, k-i+p₁+1] * y.data[k, j-k+p₂+1]
+      end
+    end
+  end
+  return R
+end
 
 # 条带以外的元素填充为0
 function force_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}

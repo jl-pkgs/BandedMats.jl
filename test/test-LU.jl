@@ -2,20 +2,18 @@ using LinearAlgebra
 using BandedMats
 using Test
 
-mat_equal(x, y) = maximum(abs.(x - y)) <= 1e-10
-
 @testset "LU_gauss" begin
   n = 4
   A = rand(n, n)
   l, u = lu(A, NoPivot())
 
   L, U = LU_gauss(A)
-  @test mat_equal(L, l)
-  @test mat_equal(U, u)
+  mat_equal(L, l)
+  mat_equal(U, u)
 
   L, U = LU_full(A)
-  @test mat_equal(L, l)
-  @test mat_equal(U, u)
+  mat_equal(L, l)
+  mat_equal(U, u)
 end
 
 
