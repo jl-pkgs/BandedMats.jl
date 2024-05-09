@@ -9,7 +9,7 @@ function solve_U(U::AbstractMatrix{T}, b::AbstractArray) where {T}
     x[i] = b[i] - sum(U[i, i+1:n] .* x[i+1:n])
     x[i] /= U[i, i]
   end
-  x
+  return x
 end
 
 function solve_L(L::AbstractMatrix{T}, b::AbstractArray) where {T}
@@ -21,7 +21,7 @@ function solve_L(L::AbstractMatrix{T}, b::AbstractArray) where {T}
     x[i] = b[i] - sum(L[i, 1:i-1] .* x[1:i-1])
     x[i] /= L[i, i]
   end
-  x
+  return x
 end
 
 ################################################################################
@@ -42,7 +42,7 @@ function solve_U(BU::BandedMat{T}, b::AbstractArray) where {T}
     end
     x[i] /= U[i, 1]
   end
-  x
+  return x
 end
 
 function solve_L(BL::BandedMat{T}, b::AbstractArray) where {T}
@@ -61,6 +61,6 @@ function solve_L(BL::BandedMat{T}, b::AbstractArray) where {T}
     end
     # x[i] /= L[i, p+1]
   end
-  x
+  return x
 end
 

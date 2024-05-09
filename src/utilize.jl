@@ -10,7 +10,7 @@
 function Base.show(io::IO, x::AbstractBandMat{T}) where {T<:Real}
   printstyled(io, "$(typeof(x)): p = $(x.p), q = $(x.q) \n", color=:blue, underline=true)
   display(x.data)
-  nothing
+  return nothing
 end
 
 
@@ -25,7 +25,7 @@ function force_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
       A[i, j] = 0
     end
   end
-  A
+  return A
 end
 
 # 强制修改为对称
@@ -37,7 +37,7 @@ function force_sym!(A::AbstractMatrix{T}) where {T}
       A[i, j] = A[j, i]
     end
   end
-  A
+  return A
 end
 
 # """

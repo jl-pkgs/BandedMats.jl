@@ -61,7 +61,7 @@ function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
       end
     end
   end
-  B
+  return B
 end
 
 band_unzip(bd::BandedMat) = band_unzip(bd.data, bd.p, bd.q; type=bd.type)
@@ -87,5 +87,5 @@ function band_unzip(B::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
       end
     end
   end
-  A
+  return A
 end

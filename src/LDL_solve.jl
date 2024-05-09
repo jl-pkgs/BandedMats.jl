@@ -44,7 +44,7 @@ function LDL_solve(BL::BandedMat{T}, d::AbstractVector{T}, b::AbstractArray) whe
       # x[i] -= U[i, k] * x[k]
     end
   end
-  x
+  return x
 end
 
 
