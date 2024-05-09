@@ -35,8 +35,22 @@ function BandMat(bd::BandedMat{T}) where {T}
 end
 
 
+Base.@kwdef struct BandedL{T} <: AbstractBandMat{T}
+  data::AbstractMatrix{T} # B
+  p::Int
+  type = "kong" # "kong", "lapack"
+  zipped = true
+
+  function BandedL(data::AbstractMatrix{T}, p::Int, type, zipped) where {T}
+    !zipped && (data = band_zip(data, p, 0; type))
+    new{T}(data, p, type, zipped)
+  end
+end
+
+BandedL(data, p; kw...) = BandedL(; data, p, kw...)
 
 band_zip(b::BandMat) = band_zip(b.data, b.p, b.q)
+
 function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
   n, m = size(A)
   # B = zeros(T, p + q + 1, n)

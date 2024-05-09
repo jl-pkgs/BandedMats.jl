@@ -17,14 +17,13 @@ mat_equal(x, y) = @test maximum(abs.(x - y)) <= 1e-10
   mat_equal(L * diagm(d) * L', A)
 
   ## LDL_band
-  B = BandedMat(A, p, q; zipped=false)
-  BL, d2 = LDL_band(B)
+  # B = BandedMat(A, p, q; zipped=false)
+  A2 = BandedL(A, p; zipped=false)
+  BL, d2 = LDL_band(A2)
 
   @test BL.data ≈ band_zip(L, p, 0)[:, 1:end-1]
   @test d ≈ d2
 
   ## LCL_solve
-  B = BandedMat(A, p, q; zipped=false)
-  BL, d2 = LDL_band(B)
   @test LDL_solve(BL, d, b) ≈ A \ b
 end

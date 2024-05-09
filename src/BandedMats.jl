@@ -3,7 +3,7 @@ module BandedMats
 # using LinearAlgebra: det
 # using SparseArrays
 
-export BandMat, BandedMat
+export BandMat, BandedMat, BandedL
 export band_zip, band_unzip, force_band!, force_sym!
 
 include("DataType.jl")

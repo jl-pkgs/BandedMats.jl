@@ -8,7 +8,9 @@
 # Base.setindex!(x::BandMat, v, i, j) = x.A[i, j] = v;
 
 function Base.show(io::IO, x::AbstractBandMat{T}) where {T<:Real}
-  printstyled(io, "$(typeof(x)): p = $(x.p), q = $(x.q) \n", color=:blue, underline=true)
+  p = hasfield(typeof(x), :p) ? x.p : 0
+  q = hasfield(typeof(x), :q) ? x.q : 0
+  printstyled(io, "$(typeof(x)): p = $p, q = $q \n", color=:blue, underline=true)
   display(x.data)
   return nothing
 end

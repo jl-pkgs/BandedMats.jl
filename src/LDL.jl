@@ -1,11 +1,26 @@
 # LDL矩阵分解算法
 # https://en.wikipedia.org/wiki/Cholesky_decomposition
-function LDL_band(B::BandedMat{T}; tol::Real=1e-10) where {T}
-  A = B.data
-  (; p, q) = B
-  n, m = size(A)
-  @assert (p == q) "LDL: matrix is not square"
+"""
+    LDL_band(B::BandedL{T}; tol::Real=1e-10)
 
+# Example
+```julia
+n = 10
+A = rand(n, n)
+p, q = 2, 2
+force_band!(A, p, q)
+force_sym!(A)
+
+B = BandedL(A, p; zipped=false)
+BL, d = LDL_band(B)
+```
+"""
+function LDL_band(B::BandedL{T}; tol::Real=1e-10) where {T}
+  # 这里略微调整，尽可能的减少数据开支
+  A = B.data
+  p = B.p
+  n = size(A, 1)
+  # @assert (p == q) "LDL: matrix is not square"
   L = zeros(T, n, p)
   d = zeros(T, n)
 
@@ -19,11 +34,9 @@ function LDL_band(B::BandedMat{T}; tol::Real=1e-10) where {T}
     abs(d[i]) < tol && error("LDL: matrix is not positive definite")
 
     for j = i + 1:min(i + p, n)
-      # 1 <= i-j+p+1 <= p
       L[j, i-j+p+1] = A[j, i-j+p+1]
+
       for k = max(i - p, j - p, 1):i-1
-        # 1 <= k-i+p+1 <= p
-        # 1 <= k-j+p+1 <= p
         L[j, i-j+p+1] -= L[j, k-j+p+1] * L[i, k-i+p+1] * d[k]
       end
       L[j, i-j+p+1] /= d[i]
