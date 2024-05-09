@@ -3,13 +3,13 @@ export LU_band_full
 
 # 高斯消元法
 LU_gauss(A) = LU_gauss!(deepcopy(A))
-function LU_gauss!(A)
+function LU_gauss!(A::AbstractMatrix{T}) where {T}
   n = size(A, 1)
-  T = typeof(A)
-  L = T(diagm(ones(n)))
+  L = zeros(T, size(A))
 
   for i = 1:n-1
     r1 = A[i, :]
+    L[i, i] = 1
     # U[i, :] = r1
     for j = i+1:n
       f = A[j, i] / A[i, i]
@@ -18,6 +18,7 @@ function LU_gauss!(A)
       # L[:, 1] = A₁[j, :]
     end
   end
+  L[n, n] = 1
   (; L, U=A)
 end
 

@@ -1,6 +1,6 @@
 module BandMatrices
 
-using LinearAlgebra
+# using LinearAlgebra: det
 # using SparseArrays
 
 export BandMatrix, BandedMatrix
