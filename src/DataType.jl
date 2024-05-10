@@ -25,11 +25,14 @@ Base.@kwdef struct BandedMat{T} <: AbstractBandMat{T}
       # force_band!(data, p, q)
       size = Base.size(data)
       data = band_zip(data, p, q; type)
+      zipped = true
     end
     new{T}(data, p, q, size, type, zipped)
   end
 end
 BandedMat(data, p, q; kw...) = BandedMat(; data, p, q, kw...)
+
+BandedMat(data, b::BandedMat) = BandedMat(data, b.p, b.q, b.size, b.type, b.zipped)
 
 function BandedMat(b::BandMat; type="kong") 
   B = band_zip(b.data, b.p, b.q; type)
@@ -37,8 +40,7 @@ function BandedMat(b::BandMat; type="kong")
 end
 
 function BandMat(bd::BandedMat{T}) where {T}
-  A = band_unzip(bd)
-  BandMat(A, bd.p, bd.q)
+  BandMat(Matrix(bd), bd.p, bd.q)
 end
 
 # abstract type BandedL2{T} <: BandedMat{T} end
@@ -47,14 +49,29 @@ Base.@kwdef struct BandedL{T} <: AbstractBandMat{T}
   p::Int
   type = "kong" # "kong", "lapack"
   zipped = true
-
-  function BandedL(data::AbstractMatrix{T}, p::Int, type, zipped) where {T}
-    !zipped && (data = band_zip(data, p, 0; type))
-    new{T}(data, p, type, zipped)
+  size = Base.size(data)
+  
+  function BandedL(data::AbstractMatrix{T}, p::Int, type, zipped, size) where {T}
+    if !zipped
+      size = Base.size(data)
+      data = band_zip(data, p, 0; type)
+      zipped = true
+    end
+    new{T}(data, p, type, zipped, size)
   end
 end
 
-BandedL(data, p; kw...) = BandedL(; data, p, kw...)
+BandedL(data::AbstractMatrix, p::Int; kw...) = BandedL(; data, p, kw...)
+
+function BandedL(data::AbstractMatrix, b::BandedL) 
+  (; p, type, zipped, size) = b
+  BandedL(; data, p, type, zipped, size)
+end
+
+function BandedL(b::BandedMat) 
+  (; p, type, zipped, size) = b
+  BandedL(b.data[:, 1:1+p], p; type, zipped, size)
+end
 
 band_zip(b::BandMat; kw...) = band_zip(b.data, b.p, b.q; kw...)
 
@@ -85,13 +102,11 @@ function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
   return B
 end
 
-Base.Matrix(BD::BandedMat) = band_unzip(BD)
 Base.Matrix(B::BandMat) = B.data
 
-# band_unzip(bd::BandedMat) = band_unzip(bd.data, bd.p, bd.q; type=bd.type)
-function band_unzip(BD::BandedMat{T}) where {T}
-  # function band_unzip(B::BandedMat{T}) where {T}
-  (; p, q, type) = BD
+function Base.Matrix(BD::Union{BandedL{T},BandedMat{T}}) where {T}
+  p, q = bandwidth(BD)
+  (; type) = BD
   n, m = BD.size
   B = BD.data
   A = zeros(T, n, m)

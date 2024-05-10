@@ -8,10 +8,29 @@
 function Base.show(io::IO, x::AbstractBandMat{T}) where {T<:Real}
   p = hasfield(typeof(x), :p) ? x.p : 0
   q = hasfield(typeof(x), :q) ? x.q : 0
-  printstyled(io, "$(typeof(x)), size=$(x.size), bandwidth=($p, $q)\n", 
+  zipped = hasfield(typeof(x), :zipped) ? "$(x.zipped)" : "nan"
+  printstyled(io, "$(typeof(x)), size=$(x.size), bandwidth=($p, $q), zipped=$zipped\n",
     color=:green, underline=true)
   display(x.data)
   return nothing
+end
+
+bandwidth(x::AbstractBandMat) = (x.p, x.q)
+bandwidth(x::BandedL) = (x.p, 0)
+export bandwidth
+
+## 添加一些简单的函数
+ops = [:+, :-, :*, :/]
+for fun in ops
+  @eval Base.$fun(b::AbstractBandMat, x::Real) = Banded($fun.(b.data, x), b)
+  @eval Base.$fun(x::Real, b::AbstractBandMat) = Banded($fun.(x, b.data), b)
+
+  @eval Base.$fun(x::AbstractBandMat, y::AbstractBandMat) = begin
+    bandwidth(x) == bandwidth(y) || throw(ArgumentError("bandwidth not match"))
+    # if bandwidth(x) == bandwidth(y)
+    # band = typeof(x)
+    BandedL($fun.(x.data, y.data), x)
+  end
 end
 
 ## lapack
@@ -26,7 +45,7 @@ function Base.transpose(x::BandedMat{T}) where {T}
   data = zeros(T, x.size[2], p + q + 1)
   (_n, _m) = x.size
   for i in 1:_n
-    for j in max(i-p, 1):min(i+q, _m)
+    for j in max(i - p, 1):min(i + q, _m)
       data[j, i-j+q+1] = x.data[i, j-i+p+1]
     end
   end
@@ -88,7 +107,7 @@ force_band!(B::AbstractMatrix, p::Int, q::Int) = force_band!(B; p, q)
 function force_band!(A::AbstractMatrix{T}; p::Int, q::Int) where {T}
   n, m = size(A)
   for i = 1:n
-    for j = 1:min(i-p-1, m) # 下三角
+    for j = 1:min(i - p - 1, m) # 下三角
       A[i, j] = 0
     end
     for j = i+q+1:m # 上三角

@@ -18,34 +18,38 @@ x = L'^-1 D^-1 θ
 LDL_solve(BL, d, b)
 ```
 """
-function LDL_solve(BL::BandedMat{T}, d::AbstractVector{T}, b::AbstractArray) where {T}
+function LDL_solve!(z::AbstractVector{T}, BL::BandedL{T}, d::AbstractVector{T}, b::AbstractArray) where {T}
   # [i, j] => [i, j - i + p + 1] # L, A
   # [i, j] => [i, j - i + 1]     # U
-  (; p, q) = BL
+  (; p) = BL
   L = BL.data
   n = length(b)
-  x = similar(b)
+  # z = similar(b)
 
   ## L
-  x[1] = b[1]
+  z[1] = b[1]
   @inbounds for i = 2:n
-    x[i] = b[i]
+    z[i] = b[i]
     for j = max(i - p, 1):i-1
-      x[i] -= L[i, j-i+p+1] * x[j]
+      z[i] -= L[i, j-i+p+1] * z[j]
     end
   end
 
   # U的计算
-  x[n] = x[n] / d[n]
+  z[n] = z[n] / d[n]
   @inbounds for i = n-1:-1:1
-    x[i] /= d[i]
+    z[i] /= d[i]
     for k = i+1:min(i+p, n)
-      x[i] -= L[k, i-k+p+1] * x[k] # U[i, k]
+      z[i] -= L[k, i-k+p+1] * z[k] # U[i, k]
       # x[i] -= U[i, k] * x[k]
     end
   end
-  return x
+  return z
 end
 
+function LDL_solve(BL::BandedL{T}, d::AbstractVector{T}, b::AbstractArray) where {T}
+  z = similar(b)
+  LDL_solve!(z, BL, d, b)
+end
 
 export LDL_solve, LDL

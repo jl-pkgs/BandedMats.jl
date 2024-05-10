@@ -15,25 +15,32 @@ B = BandedL(A, p; zipped=false)
 BL, d = LDL_band(B)
 ```
 """
-function LDL_band(B::BandedL{T}; tol::Real=1e-10) where {T}
-  # 这里略微调整，尽可能的减少数据开支
-  A = B.data
+function LDL_band(B::BandedL{T}) where {T}
+  n = size(B.data, 1)
   p = B.p
-  n = size(A, 1)
-  # @assert (p == q) "LDL: matrix is not square"
+
   L = zeros(T, n, p)
+  BL = BandedL(L, p; size=(n, n))
   d = zeros(T, n)
 
+  LDL_band!(BL, d, B)
+end
+
+function LDL_band!(BL::BandedL{T}, d::AbstractVector{T}, B::BandedL{T}) where {T}
+  p = B.p
+  n = size(B.data, 1)
+  A::Matrix{T} = B.data
+  L::Matrix{T} = BL.data
+
   # [i, j] => [i, j-i+p+1]
-  @inbounds for i = 1:n
+  @fastmath @inbounds for i = 1:n
     d[i] = A[i, p+1]
     for j = max(i-p,1):i-1
       # 1 <= j-i+p+1 <= p
       d[i] -= L[i, j-i+p+1]^2 * d[j]
     end
-    abs(d[i]) < tol && error("LDL: matrix is not positive definite")
-
-    for j = i + 1:min(i + p, n)
+    # abs(d[i]) < tol && error("LDL: matrix is not positive definite")
+    for j = i+1:min(i + p, n)
       L[j, i-j+p+1] = A[j, i-j+p+1]
 
       for k = max(i - p, j - p, 1):i-1
@@ -42,7 +49,6 @@ function LDL_band(B::BandedL{T}; tol::Real=1e-10) where {T}
       L[j, i-j+p+1] /= d[i]
     end
   end
-  BL = BandedMat(L, p, 0; type="kong")
   return BL, d
 end
 

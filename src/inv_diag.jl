@@ -34,7 +34,8 @@ B^(-1) = B * U^(-1)' + (1 - U) * B^(-1) # Hutchinson 1985, Eq. 3.3
 1. Hutchinson, Michael F., and Frank R. de Hoog. "Smoothing noisy data with spline 
     functions." Numerische Mathematik 47 (1985): 99-106.
 """
-function inv_diag(BL::BandedMat{T}, d::AbstractVector{T}) where {T<:Real}
+function inv_diag(BL::Union{BandedMat{T},BandedL{T}}, d::AbstractVector{T}) where {T<:Real}
+  
   L = BL.data # [n, m]
   m = BL.p
   n = size(L, 1)

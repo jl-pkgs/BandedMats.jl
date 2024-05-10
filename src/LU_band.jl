@@ -21,7 +21,7 @@ function LU_band(B::BandedMat{T}) where {T}
   l = zeros(T, n, p)
   u = zeros(T, m, q + 1)
 
-  for i = 1:m
+  @inbounds for i = 1:m
     # l[i, p+1] = 1
     for j = i:min(i + q, _m)
       u[i, j-i+1] = A[i, j-i+p+1]

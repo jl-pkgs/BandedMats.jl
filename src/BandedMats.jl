@@ -4,7 +4,8 @@ module BandedMats
 # using SparseArrays
 
 export BandMat, BandedMat, BandedL
-export band_zip, band_unzip
+export Banded, Band
+export band_zip
 export force_band!, force_sym!
 export force_lower!, force_upper!
 
@@ -18,5 +19,8 @@ include("LDL.jl")
 
 include("tools.jl")
 include("inv_diag.jl")
+
+Banded = BandedMat
+Band = BandMat
 
 end
