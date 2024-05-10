@@ -73,7 +73,7 @@ function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
     end
   elseif type == "kong"
     # Whittaker的存储方案
-    @inbounds for i = 1:n
+    for i = 1:n
       for k = max(-p, 1 - i):min(q, m - i)
         # 1 <= i + k <= m ==> 1 - i <= k <= m - i
         B[i, k+p+1] = A[i, i+k]
@@ -84,6 +84,9 @@ function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
   end
   return B
 end
+
+Base.Matrix(BD::BandedMat) = band_unzip(BD)
+Base.Matrix(B::BandMat) = B.data
 
 # band_unzip(bd::BandedMat) = band_unzip(bd.data, bd.p, bd.q; type=bd.type)
 function band_unzip(BD::BandedMat{T}) where {T}

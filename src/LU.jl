@@ -4,8 +4,8 @@ export LU_band_full
 # 高斯消元法
 LU_gauss(A) = LU_gauss!(deepcopy(A))
 function LU_gauss!(A::AbstractMatrix{T}) where {T}
-  n = size(A, 1)
-  L = zeros(T, size(A))
+  n, m = size(A)
+  L = zeros(T, n, m)
 
   @inbounds for i = 1:n-1
     r1 = A[i, :]
@@ -18,8 +18,8 @@ function LU_gauss!(A::AbstractMatrix{T}) where {T}
       # L[:, 1] = A₁[j, :]
     end
   end
-  L[n, n] = 1
-  (; L, U=A)
+  n <= m && (L[n, n] = 1)
+  (; L, U=A[1:m, 1:m])
 end
 
 """
@@ -35,19 +35,19 @@ U = D L', L = U' D^-1
 ```
 """
 function LU_full(A::AbstractMatrix{T}) where {T}
-  n = size(A, 1)
-  u = zeros(T, n, n)
-  l = zeros(T, n, n)
+  n, m = size(A)
+  u = zeros(T, m, m)
+  l = zeros(T, n, m)
   # u = tri_upper(:u, n)
   # l = tri_lower(:l, n)
 
-  @inbounds for i = 1:n
-    l[i, i] = 1
-    for j = i:n
+  for i = 1:n
+    i <= m && (l[i, i] = 1)
+    for j = i:m
       u[i, j] = A[i, j] - sum(l[i, 1:i-1] .* u[1:i-1, j])
     end
     # 一般矩阵
-    for i2 = i+1:n
+    for i2 = i+1:m
       l[i2, i] = (A[i2, i] - sum(l[i2, 1:i-1] .* u[1:i-1, i])) / u[i, i]
     end
   end

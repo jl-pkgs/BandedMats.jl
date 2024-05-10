@@ -23,16 +23,11 @@ end
 function Base.transpose(x::BandedMat{T}) where {T}
   # B[i, j-i+p+1] -> B[j, i - j + q + 1]
   (; p, q) = x
-  n, m = size(x.data)
-  data = zeros(T, n, m)
-
-  for i = 1:n
-    for j = max(1, p - i + 2):min(m, p - i + 2 + m)
-      # _i = i
-      # _j = j + i - p - 1
-      # i2 = _j
-      # j2 = _i - _j + q + 1 = m - j + 1
-      data[j+i-p-1, m-j+1] = x.data[i, j]
+  data = zeros(T, x.size[2], p + q + 1)
+  (_n, _m) = x.size
+  for i in 1:_n
+    for j in max(i-p, 1):min(i+q, _m)
+      data[j, i-j+q+1] = x.data[i, j-i+p+1]
     end
   end
   BandedMat(data, q, p; type=x.type)
@@ -59,7 +54,8 @@ function Base.:*(x::BandMat{T1}, y::BandMat{T2}) where {T1,T2}
       end
     end
   end
-  return R
+  BandMat(R, p₁ + p₂, q₁ + q₂)
+  # return R
 end
 
 function Base.:*(x::BandedMat{T1}, y::BandedMat{T2}) where {T1,T2}
@@ -67,18 +63,23 @@ function Base.:*(x::BandedMat{T1}, y::BandedMat{T2}) where {T1,T2}
   p₂, q₂ = y.p, y.q
   n₁, m = x.size
   m, n₂ = y.size
+  # R = zeros(promote_type(T1, T2), n₁, n₂)
+  R = zeros(promote_type(T1, T2), n₁, p₁ + p₂ + q₁ + q₂ + 1)
+  p = p₁ + p₂
+  q = q₁ + q₂
 
-  R = zeros(promote_type(T1, T2), n₁, n₂)
   @inbounds for i = 1:n₁
     for j = 1:n₂
       k_min = max(i - p₁, j - q₂, 1)
       k_max = min(i + q₁, j + p₂, m)
       for k = k_min:k_max
-        R[i, j] += x.data[i, k-i+p₁+1] * y.data[k, j-k+p₂+1]
+        # R[i, j] += x.data[i, k-i+p₁+1] * y.data[k, j-k+p₂+1]
+        R[i, j-i+p+1] += x.data[i, k-i+p₁+1] * y.data[k, j-k+p₂+1]
+        # R[i, j-i+p₁+1] += x.data[i, k-i+p₁+1] * y.data[k, j-k+p₂+1]
       end
     end
   end
-  return R
+  BandedMat(R, p, q; type=x.type, zipped=true, size=(n₁, n₂))
 end
 
 # 条带以外的元素填充为0
@@ -86,8 +87,8 @@ end
 force_band!(B::AbstractMatrix, p::Int, q::Int) = force_band!(B; p, q)
 function force_band!(A::AbstractMatrix{T}; p::Int, q::Int) where {T}
   n, m = size(A)
-  @inbounds for i = 1:n
-    for j = 1:i-p-1 # 下三角
+  for i = 1:n
+    for j = 1:min(i-p-1, m) # 下三角
       A[i, j] = 0
     end
     for j = i+q+1:m # 上三角
@@ -97,21 +98,8 @@ function force_band!(A::AbstractMatrix{T}; p::Int, q::Int) where {T}
   return A
 end
 
-function force_upper!(x::AbstractMatrix)
-  n, m = size(x)
-  for i = 1:n, j = 1:i-1
-    x[i, j] = 0
-  end
-  return x
-end
-
-function force_lower!(x::AbstractMatrix)
-  n, m = size(x)
-  for i = 1:n, j = i+1:m
-    x[i, j] = 0
-  end
-  return x
-end
+force_upper!(x::AbstractMatrix) = force_band!(x, 0, size(x, 2) - 1)
+force_lower!(x::AbstractMatrix) = force_band!(x, size(x, 1) - 1, 0)
 
 # 强制修改为对称
 function force_sym!(A::AbstractMatrix{T}) where {T}

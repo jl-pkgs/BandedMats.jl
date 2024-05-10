@@ -48,8 +48,8 @@ end
   function test_mult(x, y)
     x2 = BandedMat(x)
     y2 = BandedMat(y)
-    @test x * y ≈ x.data * y.data
-    @test x2 * y2 ≈ x.data * y.data
+    @test (x * y).data ≈ x.data * y.data
+    @test Matrix(x2 * y2) ≈ x.data * y.data
   end
 
   x = BandMat(rand(5, 4), 1, 2)
@@ -59,4 +59,17 @@ end
   x = BandMat(rand(5, 4), 1, 2)
   y = BandMat(rand(4, 5), 2, 3)
   test_mult(x, y)
+
+  # 测试畸形矩阵
+  n = 10
+  x = rand(n, 8)
+  y = rand(8, n)
+
+  A = BandMat(x, 0, 3)
+  B = BandMat(y, 2, 1)
+
+  A2 = BandedMat(A)
+  B2 = BandedMat(B)
+
+  @test Matrix(A2 * B2) ≈ x * y
 end

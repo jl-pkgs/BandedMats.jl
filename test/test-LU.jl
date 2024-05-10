@@ -3,7 +3,7 @@ using BandedMats
 using Test
 
 @testset "LU_gauss" begin
-  n = 4
+  n = 10
   A = rand(n, n)
   l, u = lu(A, NoPivot())
 
