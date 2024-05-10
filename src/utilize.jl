@@ -83,8 +83,8 @@ end
 
 # 条带以外的元素填充为0
 force_band!(B::AbstractBandMat) = force_band!(B.data, B.p, B.q)
-
-function force_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
+force_band!(B::AbstractMatrix, p::Int, q::Int) = force_band!(B; p, q)
+function force_band!(A::AbstractMatrix{T}; p::Int, q::Int) where {T}
   n, m = size(A)
   @inbounds for i = 1:n
     for j = 1:i-p-1 # 下三角
@@ -95,6 +95,22 @@ function force_band!(A::AbstractMatrix{T}, p::Int, q::Int) where {T}
     end
   end
   return A
+end
+
+function force_upper!(x::AbstractMatrix)
+  n, m = size(x)
+  for i = 1:n, j = 1:i-1
+    x[i, j] = 0
+  end
+  x
+end
+
+function force_lower!(x::AbstractMatrix)
+  n, m = size(x)
+  for i = 1:n, j = i+1:m
+    x[i, j] = 0
+  end
+  x
 end
 
 # 强制修改为对称

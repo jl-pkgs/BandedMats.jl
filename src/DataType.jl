@@ -56,7 +56,7 @@ end
 
 BandedL(data, p; kw...) = BandedL(; data, p, kw...)
 
-band_zip(b::BandMat) = band_zip(b.data, b.p, b.q)
+band_zip(b::BandMat; kw...) = band_zip(b.data, b.p, b.q; kw...)
 
 function band_zip(A::AbstractMatrix{T}, p::Int, q::Int; type="kong") where {T}
   n, m = size(A)

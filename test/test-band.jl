@@ -14,6 +14,8 @@ using Test
   bd2 = BandedMat(b; type="kong")
   print(b)
 
+  @test band_zip(b; type="kong") == bd2.data
+
   r1 = BandMat(bd1).data - A
   r2 = BandMat(bd2).data - A
 
@@ -21,18 +23,25 @@ using Test
   @test maximum(abs.(r2)) <= 1e-10
 end
 
+@testset "force" begin
+  A = rand(5, 5)
+  force_lower!(A) # 注意会修改A
+  force_upper!(A) 
+  @test A == diagm(diag(A))
+end
+
 @testset "transpose" begin
   A = rand(5, 5)
   p, q = 1, 2
   b = BandedMat(A, p, q; zipped=false)
   bt = BandedMat(A', q, p; zipped=false)
-  mat_equal(transpose(b).data, bt.data)
+  mat_equal((b').data, bt.data)
 
   A = rand(5, 5)
   p, q = 2, 1
   b = BandedMat(A, p, q; zipped=false)
   bt = BandedMat(A', q, p; zipped=false)
-  mat_equal(transpose(b).data, bt.data)
+  mat_equal((b').data, bt.data)
 end
 
 @testset "mult" begin
