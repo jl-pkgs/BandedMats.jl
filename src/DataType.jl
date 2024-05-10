@@ -41,7 +41,7 @@ function BandMat(bd::BandedMat{T}) where {T}
   BandMat(A, bd.p, bd.q)
 end
 
-
+# abstract type BandedL2{T} <: BandedMat{T} end
 Base.@kwdef struct BandedL{T} <: AbstractBandMat{T}
   data::AbstractMatrix{T} # B
   p::Int

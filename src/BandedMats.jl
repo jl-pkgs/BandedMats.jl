@@ -16,6 +16,7 @@ include("LU_solve.jl")
 include("LDL_solve.jl")
 include("LDL.jl")
 
+include("tools.jl")
 include("inv_diag.jl")
 
 end
