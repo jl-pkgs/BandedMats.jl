@@ -14,13 +14,16 @@
 function LU_band(B::BandedMat{T}) where {T}
   (; p, q) = B
   A = B.data
-  n = size(A, 1)
-  l = zeros(T, n, p)
-  u = zeros(T, n, q + 1)
 
-  @inbounds for i = 1:n
+  _n, _m = B.size
+  m = min(_n, _m)
+  n = _n
+  l = zeros(T, n, p)
+  u = zeros(T, m, q + 1)
+
+  for i = 1:m
     # l[i, p+1] = 1
-    for j = i:min(i + q, n)
+    for j = i:min(i + q, _m)
       u[i, j-i+1] = A[i, j-i+p+1]
       for k = max(i - p, j - q, 1):min(i - 1, j - 1)
         u[i, j-i+1] -= l[i, k-i+p+1] * u[k, j-k+1]
@@ -48,13 +51,15 @@ end
 带状矩阵的原始矩阵解法，与LU_full类似，只是求解的过程中，跳过了空值的部分。
 """
 function LU_band_full(A::AbstractMatrix{T}; p=2, q=1) where {T}
-  n = size(A, 1)
-  u = zeros(T, n, n)
-  l = zeros(T, n, n)
-
-  @inbounds for i = 1:n
+  _n, _m = size(A)
+  m = min(_n, _m)
+  n = _n
+  l = zeros(T, n, m)
+  u = zeros(T, m, _m)
+  
+  for i = 1:m
     l[i, i] = 1
-    for j = i:min(i + q, n)
+    for j = i:min(i + q, _m)
       # u[i, j] = A[i, j] - sum(l[i, 1:i-1] .* u[1:i-1, j])
       u[i, j] = A[i, j]
       for k = max(i - p, j - q, 1):min(i - 1, j - 1)
@@ -75,25 +80,3 @@ function LU_band_full(A::AbstractMatrix{T}; p=2, q=1) where {T}
   end
   l, u
 end
-
-# function LU_band_symmetry(A; p=2, q=1)
-#   n = size(A, 1)
-#   l = variables(:l, 1:p, 1:n)   # [i+k, i] -> [k, i]  ;  [i, j] -> [i-j, j]
-#   u = variables(:l, 1:n, 1:q+1) # [i, i+k] -> [i, k+1];  [i, j] -> [i, j-i+1]
-#   fill!(u, 0)
-#   fill!(l, 0)
-#   # L与U，二者不可或缺
-#   for i = 1:n
-#     for j = i:min(i + q, n)
-#       u[i, j-i+1] = A[i, j]
-#       for k = max(i - p, j - q, 1):min(i - 1, j - 1)
-#         u[i, j-i+1] -= l[i-k, k] * u[k, j-k+1]
-#       end
-#     end
-#     # 对称矩阵的福利: L = U' D^-1
-#     for i2 = i+1:min(i + p, i + q, n)
-#       l[i2-i, i] = u[i, i2-i+1] / u[i, 1] # u[i, i2]
-#     end
-#   end
-#   l, u
-# end
