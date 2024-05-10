@@ -82,7 +82,7 @@ function Base.:*(x::BandedMat{T1}, y::BandedMat{T2}) where {T1,T2}
 end
 
 # 条带以外的元素填充为0
-force_band!(B::AbstractBandMat) = force_band!(B.data, B.p, B.q)
+# force_band!(B::AbstractBandMat) = force_band!(B.data, B.p, B.q)
 force_band!(B::AbstractMatrix, p::Int, q::Int) = force_band!(B; p, q)
 function force_band!(A::AbstractMatrix{T}; p::Int, q::Int) where {T}
   n, m = size(A)
@@ -102,7 +102,7 @@ function force_upper!(x::AbstractMatrix)
   for i = 1:n, j = 1:i-1
     x[i, j] = 0
   end
-  x
+  return x
 end
 
 function force_lower!(x::AbstractMatrix)
@@ -110,7 +110,7 @@ function force_lower!(x::AbstractMatrix)
   for i = 1:n, j = i+1:m
     x[i, j] = 0
   end
-  x
+  return x
 end
 
 # 强制修改为对称
