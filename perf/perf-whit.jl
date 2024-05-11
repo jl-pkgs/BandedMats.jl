@@ -2,6 +2,7 @@ using Test
 using LinearAlgebra
 using SparseArrays
 using BenchmarkTools
+using BandedMats
 
 # ddmat(x::AbstractVector, d::Integer=2) = diff(diagm(x), d)
 ddmat(x::AbstractVector, d::Integer=2) = diff(spdiagm(x), d)
@@ -35,12 +36,10 @@ x = rand(n)
 interm = IntermBand{Float64}(; n=length(y), p=3)
 # @profview 
 # @time 
-@profview for i = 1:100_000
+@time for i = 1:100_000
   z1 = whit_band(y, w, x; λ=2.0, p=3, interm)
   # z2 = WHIT(y, w, x; λ=2.0, p=3)
 end
 
 @btime z1 = whit_band($y, $w, $x; λ=2.0, p=3, interm);
 @btime z2 = WHIT($y, $w, $x; λ=2.0, p=3);
-
-## 最终实现whit 8倍的提速

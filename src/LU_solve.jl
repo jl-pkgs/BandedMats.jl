@@ -1,6 +1,6 @@
 export solve_L, solve_U
 
-function solve_U(U::AbstractMatrix{T}, b::AbstractArray) where {T}
+function solve_U(U::AbstractMatrix{T}, b::AbstractArray{T}) where {T}
   # Ux = b
   # [n, m] * [m, 1] = [n,1]
   n, m = size(U)
@@ -15,10 +15,10 @@ function solve_U(U::AbstractMatrix{T}, b::AbstractArray) where {T}
   return x
 end
 
-function solve_U(BU::BandedMat{T}, b::AbstractArray) where {T}
+function solve_U(BU::BandedMat{T}, b::AbstractArray{T}) where {T}
   # [i, j] => [i, j - i + 1]     # 对于U
   (; q) = BU
-  U = BU.data
+  U::Matrix{T} = BU.data
   n = length(b)
   x = similar(b)
   x[n] = b[n] / U[n, 1]
@@ -56,7 +56,7 @@ end
 function solve_L(BL::BandedMat{T}, b::AbstractArray) where {T}
   # [i, j] => [i, j - i + p + 1] # 对于L
   (; p) = BL
-  L = BL.data
+  L::Matrix{T} = BL.data
   n = length(b)
   x = similar(b)
   x[1] = b[1]
@@ -71,4 +71,3 @@ function solve_L(BL::BandedMat{T}, b::AbstractArray) where {T}
   end
   return x
 end
-

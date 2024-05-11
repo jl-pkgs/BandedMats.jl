@@ -54,6 +54,10 @@ end
 
 Base.adjoint(x::BandedMat) = transpose(x)
 
+function Base.:\(A::BandedMat{T}, b::AbstractVector{T}) where {T}
+  L, U = LU_band(A)
+  solve_U(U, solve_L(L, b))
+end
 
 function Base.:*(x::BandMat{T1}, y::BandMat{T2}) where {T1,T2}
   p₁, q₁ = x.p, x.q

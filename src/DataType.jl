@@ -4,7 +4,7 @@ Base.@kwdef struct BandMat{T} <: AbstractBandMat{T}
   data::AbstractMatrix{T} # how to check value
   p::Int
   q::Int
-  size = Base.size(data)
+  size::Tuple{Int64,Int64} = Base.size(data)
   function BandMat(data::AbstractMatrix{T}, p::Int, q::Int) where {T}
     force_band!(data, p, q) # 地址可能被修改
     new{T}(data, p, q, size(data))
@@ -16,7 +16,7 @@ Base.@kwdef struct BandedMat{T} <: AbstractBandMat{T}
   data::AbstractMatrix{T} # B
   p::Int
   q::Int
-  size = size(data) # original data size
+  size::Tuple{Int64,Int64} = size(data) # original data size
   type::String = "kong" # "kong", "lapack"
   zipped::Bool = true
 
@@ -49,7 +49,7 @@ Base.@kwdef struct BandedL{T} <: AbstractBandMat{T}
   p::Int
   type::String = "kong" # "kong", "lapack"
   zipped::Bool = true
-  size = Base.size(data)
+  size::Tuple{Int64,Int64} = Base.size(data)
   
   function BandedL(data::AbstractMatrix{T}, p::Int, type, zipped, size) where {T}
     if !zipped

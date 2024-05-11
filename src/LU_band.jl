@@ -12,12 +12,12 @@
 - [x] 压缩数据存储
 """
 function LU_band(B::BandedMat{T}) where {T}
-  (; p, q) = B
-  A = B.data
+  (; p::Int, q::Int) = B
+  A::Matrix{T} = B.data
 
   _n, _m = B.size
-  m = min(_n, _m)
-  n = _n
+  m::Int = min(_n, _m)
+  n::Int = _n
   l = zeros(T, n, p)
   u = zeros(T, m, q + 1)
 
