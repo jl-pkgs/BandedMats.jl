@@ -21,10 +21,9 @@ LDL_solve(BL, d, b)
 function LDL_solve!(z::AbstractVector{T}, BL::BandedL{T}, d::AbstractVector{T}, b::AbstractArray) where {T}
   # [i, j] => [i, j - i + p + 1] # L, A
   # [i, j] => [i, j - i + 1]     # U
-  (; p) = BL
-  L = BL.data
+  p::Int = BL.p
   n = length(b)
-  # z = similar(b)
+  L::Matrix{T} = BL.data
 
   ## L
   z[1] = b[1]

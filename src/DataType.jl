@@ -17,7 +17,7 @@ Base.@kwdef struct BandedMat{T} <: AbstractBandMat{T}
   p::Int
   q::Int
   size = size(data) # original data size
-  type = "kong" # "kong", "lapack"
+  type::String = "kong" # "kong", "lapack"
   zipped::Bool = true
 
   function BandedMat(data::AbstractMatrix{T}, p::Int, q::Int, size, type, zipped) where {T}
@@ -47,8 +47,8 @@ end
 Base.@kwdef struct BandedL{T} <: AbstractBandMat{T}
   data::AbstractMatrix{T} # B
   p::Int
-  type = "kong" # "kong", "lapack"
-  zipped = true
+  type::String = "kong" # "kong", "lapack"
+  zipped::Bool = true
   size = Base.size(data)
   
   function BandedL(data::AbstractMatrix{T}, p::Int, type, zipped, size) where {T}

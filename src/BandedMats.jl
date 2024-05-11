@@ -20,6 +20,7 @@ include("LDL.jl")
 include("tools.jl")
 include("inv_diag.jl")
 
+include("whit_band.jl")
 Banded = BandedMat
 Band = BandMat
 
