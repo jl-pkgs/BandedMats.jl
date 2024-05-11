@@ -21,11 +21,11 @@ B^(-1) = B * U^(-1)' + (1 - U) * B^(-1) # Hutchinson 1985, Eq. 3.3
   0 0  0  0  1
 ]
 - `BU`: [
-  d₁ c₁ e₁ f₁
-  d₂ c₂ e₂ f₂
-  d₃ c₃ e₃ 0
-  d₄ c₄ 0  0
-  d₅ 0  0  0
+  c₁ e₁ f₁
+  c₂ e₂ f₂
+  c₃ e₃ 0
+  c₄ 0  0
+  0  0  0
 ]
 
 > Dongdong Kong, CUG, 2024-05-07
@@ -35,8 +35,7 @@ B^(-1) = B * U^(-1)' + (1 - U) * B^(-1) # Hutchinson 1985, Eq. 3.3
     functions." Numerische Mathematik 47 (1985): 99-106.
 """
 function inv_diag(BL::Union{BandedMat{T},BandedL{T}}, d::AbstractVector{T}) where {T<:Real}
-  
-  L = BL.data # [n, m]
+  L::Matrix{T} = BL.data # [n, m]
   m = BL.p
   n = size(L, 1)
 
@@ -47,19 +46,50 @@ function inv_diag(BL::Union{BandedMat{T},BandedL{T}}, d::AbstractVector{T}) wher
     B[i, 1] = 1 / d[i]
     for l = 1:min(m, n - i)
       B[i, 1+l] = 0
-      for k = 1:min(n - i, m)
+      for k = 1:min(m, n - i)
         # k <= l, u[i, i+k] * b[i+k, i+l] => u[i, k+1] * b[i+k, l-k+1]
         # k >  l, u[i, i+k] * b[i+l, i+k] => u[i, k+1] * b[i+l, k-l+1]
         _i, _j = k <= l ? (i + k, l - k + 1) : (i + l, k - l + 1)
 
         B[i, 1+l] -= L[i+k, m+1-k] * B[_i, _j]
+        # println("(i=$i, l=$l, k=$k) = $(L[i+k, m+1-k])")
         # B[i, 1+l] -= U[i, k] * B[_i, _j]
       end
+
       B[i, 1] -= L[i+l, m+1-l] * B[i, 1+l]
       # B[i, 1] -= U[i, l] * B[i, 1+l]
     end
   end
   return B[:, 1]
 end
+
+# 上三角的情景
+function inv_diag(U2::AbstractMatrix, d::AbstractVector{T}; m::Int) where {T<:Real}
+  n = size(U2, 1)
+  B = zeros(T, n, m + 1)
+  B[n, 1] = 1 / d[n]
+
+  @inbounds for i = n-1:-1:1
+    B[i, 1] = 1.0
+    for l = 1:min(m, n - i)
+      B[i, 1+l] = 0
+      for k = 1:min(m, n - i)
+        # k <= l, u[i, i+k] * b[i+k, i+l] => u[i, k+1] * b[i+k, l-k+1]
+        # k >  l, u[i, i+k] * b[i+l, i+k] => u[i, k+1] * b[i+l, k-l+1]
+        _i, _j = k <= l ? (i + k, l - k + 1) : (i + l, k - l + 1)
+
+        # B[i, 1+l] -= L[i+k, m+1-k] * B[_i, _j]
+        B[i, 1+l] -= U2[i, k] * B[_i, _j]
+      end
+      B[i, 1+l] /= d[i]
+
+      # B[i, 1] -= L[i+l, m+1-l] * B[i, 1+l]
+      B[i, 1] -= U2[i, l] * B[i, 1+l]
+    end
+    B[i, 1] /= d[i]
+  end
+  return B[:, 1]
+end
+
 
 export inv_diag

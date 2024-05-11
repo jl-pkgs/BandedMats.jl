@@ -44,7 +44,6 @@ function GEN_A!(A::BandedL{T}, x::AbstractVector{T}, w::AbstractVector{T};
   λ=2.0, p::Int=3) where {T}
 
   n = length(x)
-  # data = zeros(n, p + 1)
   data::Matrix{T} = A.data
   coef::Vector{T} = coef_diff(p)
   λ = T(λ)
@@ -68,8 +67,6 @@ Base.@kwdef mutable struct IntermBand{T}
   z::Vector{T} = zeros(T, n)
 end
 
-# import BandedMats: LDL_band!, LDL_solve!
-
 function LDL_band!(interm::IntermBand{T}) where {T}
   LDL_band!(interm.L, interm.d, interm.A)
 end
@@ -90,7 +87,6 @@ end
 export IntermBand
 export whit_band
 
-## A矩阵要保留空间
 # _D = zeros(n, d + 1)
 # D = diff(diagm(x), d)
 # D = BandedMat(D, 0, d; zipped=false)

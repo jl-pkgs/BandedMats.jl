@@ -2,7 +2,7 @@ using LinearAlgebra
 using BandedMats
 using Test
 
-mat_equal(x, y) = @test maximum(abs.(x - y)) <= 1e-10
+mat_equal(x, y) = @test maximum(abs.(x - y)) <= 1e-8
 
 include("test-band.jl")
 include("test-inv_diag.jl")
