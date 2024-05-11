@@ -8,7 +8,7 @@ function coef_diff(d::Int)
 end
 
 # 只求下三角的部分
-function coef_mult(i::Int, j::Int; n::Int, p::Int, coef::AbstractVector)
+function coef_mult(i::Int, j::Int; n::Int, p::Int, coef::AbstractVector{T}) where {T}
   m = p + 1
   k = abs(j - i) # 隔几位
   I = k+1:m
@@ -25,8 +25,8 @@ function coef_mult(i::Int, j::Int; n::Int, p::Int, coef::AbstractVector)
     I = I[end-num+1:end]
     J = J[end-num+1:end]
   end
-  
-  ans = 0
+
+  ans = T(0)
   for (_i, _j) = zip(I, J)
     ans += coef[_i] * coef[_j]
   end
@@ -34,21 +34,21 @@ function coef_mult(i::Int, j::Int; n::Int, p::Int, coef::AbstractVector)
 end
 
 ## 一步到位A矩阵的构造函数
-function GEN_A(x::AbstractVector{T1}, w::AbstractVector{T2}; λ=2.0, d=3) where{T1, T2}
+function GEN_A(x::AbstractVector{T1}, w::AbstractVector{T2}; λ=2.0, d=3) where {T1,T2}
   A = BandedL(zeros(promote_type(T1, T2), n, d + 1), d; size=(n, n))
   GEN_A!(A, x, w; λ, d)
   # BandedL(data, d; size=(n, n))
 end
 
-function GEN_A!(A::BandedL{T}, x::AbstractVector{T}, w::AbstractVector{T}; 
+function GEN_A!(A::BandedL{T}, x::AbstractVector{T}, w::AbstractVector{T};
   λ=2.0, p::Int=3) where {T}
 
   n = length(x)
   # data = zeros(n, p + 1)
-  data = A.data
+  data::Matrix{T} = A.data
   coef::Vector{T} = coef_diff(p)
   λ = T(λ)
-  
+
   @inbounds for i = 1:n
     for j = max(i - p, 1):i
       c = coef_mult(i, j; n, p, coef)
@@ -83,7 +83,7 @@ function whit_band(y::AbstractVector{T}, w, x; λ, p, interm=nothing) where {T}
 
   GEN_A!(interm.A, x, w; λ, p)
   LDL_band!(interm)
-  LDL_solve!(interm, y.*w)
+  LDL_solve!(interm, y .* w)
   interm.z
 end
 

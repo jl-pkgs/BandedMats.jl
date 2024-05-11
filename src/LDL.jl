@@ -32,21 +32,24 @@ function LDL_band!(BL::BandedL{T}, d::AbstractVector{T}, B::BandedL{T}) where {T
   A::Matrix{T} = B.data
   L::Matrix{T} = BL.data
 
-  # [i, j] => [i, j-i+p+1]
+  m::Int = p + 1
+  # [i, j] => [i, j-i+m]
   @fastmath @inbounds for i = 1:n
-    d[i] = A[i, p+1]
+    d[i] = A[i, m]
+    # ibeg = i - m
+    # iend = i + m
     for j = max(i - p, 1):i-1
-      # 1 <= j-i+p+1 <= p
-      d[i] -= L[i, j-i+p+1] * L[i, j-i+p+1] * d[j]
+      # 1 <= j-i+m <= p
+      d[i] -= L[i, j-i+m] * L[i, j-i+m] * d[j]
     end
     # abs(d[i]) < tol && error("LDL: matrix is not positive definite")
     for j = i+1:min(i + p, n)
-      L[j, i-j+p+1] = A[j, i-j+p+1]
+      L[j, i-j+m] = A[j, i-j+m]
 
       for k = max(i - p, j - p, 1):i-1
-        L[j, i-j+p+1] -= L[j, k-j+p+1] * L[i, k-i+p+1] * d[k]
+        L[j, i-j+m] -= L[j, k-j+m] * L[i, k-i+m] * d[k]
       end
-      L[j, i-j+p+1] /= d[i]
+      L[j, i-j+m] /= d[i]
     end
   end
   return BL, d

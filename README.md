@@ -7,6 +7,8 @@
 > 不依赖与任何包的的带状矩阵算法库, 为了后期将代码移植到GEE。   
 > A band matrix algrithm library, which doesn't rely on any other packages, for later porting to GEE to speed up matrix solving.
 
+相比于稀疏矩阵，带状矩阵可使Whittaker提速8倍左右。
+
 ## Band Matrix
 
 - $p$: 下行带宽 (lower binwidth)

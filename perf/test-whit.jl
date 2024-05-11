@@ -1,6 +1,7 @@
 using Test
 using LinearAlgebra
 using SparseArrays
+using BenchmarkTools
 
 # ddmat(x::AbstractVector, d::Integer=2) = diff(diagm(x), d)
 ddmat(x::AbstractVector, d::Integer=2) = diff(spdiagm(x), d)
@@ -24,14 +25,22 @@ function WHIT(y::AbstractVector, w::AbstractVector, x::AbstractVector;
 end
 
 
-@testset "whit_band" begin
-  n = 100
-  y = rand(n)
-  w = rand(n)
-  x = rand(n)
-  λ, p = 2.0, 3
+n = 1000
+y = rand(n)
+w = rand(n)
+x = rand(n)
+λ, p = 2.0, 3
 
-  @time z1 = whit_band(y, w, x; λ=2.0, p=3)
-  @time z2 = WHIT(y, w, x; λ=2.0, p=3)
-  @test maximum(abs.(z1 - z2)) <= 1e-10
+## 测试运行速度
+interm = IntermBand{Float64}(; n=length(y), p=3)
+# @profview 
+# @time 
+@profview for i = 1:100_000
+  z1 = whit_band(y, w, x; λ=2.0, p=3, interm)
+  # z2 = WHIT(y, w, x; λ=2.0, p=3)
 end
+
+@btime z1 = whit_band($y, $w, $x; λ=2.0, p=3, interm);
+@btime z2 = WHIT($y, $w, $x; λ=2.0, p=3);
+
+## 最终实现whit 8倍的提速
