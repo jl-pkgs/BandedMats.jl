@@ -15,18 +15,19 @@ B = BandedL(A, p; zipped=false)
 BL, d = LDL_band(B)
 ```
 """
-function LDL_band(B::BandedL{T}) where {T}
+function LDL_band(B::Union{SymBanded{T},BandedL{T}}) where {T}
   n = size(B.data, 1)
   p = B.p
 
-  L = zeros(T, n, p)
-  BL = BandedL(L, p; size=(n, n))
+  BL = BandedL(zeros(T, n, p), p; size=(n, n))
   d = zeros(T, n)
-
+  
   LDL_band!(BL, d, B)
 end
 
-function LDL_band!(BL::BandedL{T}, d::AbstractVector{T}, B::BandedL{T}) where {T}
+function LDL_band!(BL::BandedL{T}, d::AbstractVector{T},
+  B::Union{SymBanded{T},BandedL{T}}) where {T}
+
   p::Int = B.p
   n::Int = size(B.data, 1)
   A::Matrix{T} = B.data

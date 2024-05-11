@@ -3,8 +3,8 @@ module BandedMats
 # using LinearAlgebra: det
 # using SparseArrays
 
-export BandMat, BandedMat, BandedL
-export Banded, Band
+export BandMat, BandedMat, BandedL, SymBandedMat
+export Band, Banded, SymBanded
 export band_zip
 export force_band!, force_sym!
 export force_lower!, force_upper!

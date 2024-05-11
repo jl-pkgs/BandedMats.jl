@@ -51,4 +51,9 @@ function LDL_solve(BL::BandedL{T}, d::AbstractVector{T}, b::AbstractArray) where
   LDL_solve!(z, BL, d, b)
 end
 
+function Base.:\(x::SymBanded{T}, b::AbstractVector{T}) where {T}
+  L, d = LDL_band(x)
+  LDL_solve(L, d, b)
+end
+
 export LDL_solve, LDL

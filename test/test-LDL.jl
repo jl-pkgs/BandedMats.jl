@@ -19,9 +19,16 @@ using Test
   A2 = BandedL(A, p; zipped=false)
   BL, d2 = LDL_band(A2)
 
+  ## LCL_solve low version
   @test BL.data ≈ band_zip(L, p, 0)[:, 1:end-1]
   @test d ≈ d2
 
-  ## LCL_solve
   @test LDL_solve(BL, d, b) ≈ A \ b
+
+  ## LCL_solve high version
+  A2 = BandedL(A, p; zipped=false)
+  A_sym = SymBanded(A2)
+  r_sym = A_sym \ b
+  r = A \ b
+  @test r ≈ r_sym
 end
