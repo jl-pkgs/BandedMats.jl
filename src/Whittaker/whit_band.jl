@@ -68,7 +68,7 @@ function whit_band(y::AbstractVector{T}, w;
   interm === nothing && (interm = IntermBand{T}(; n=length(y), p))
   @unpack D2, L, d, A, z = interm
 
-  "A = W + λ * D' * D"
+  # "A = W + λ * D' * D"
   data = A.data
   @inbounds for i = 1:length(y)
     for j = 1:p+1

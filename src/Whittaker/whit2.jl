@@ -104,5 +104,5 @@ function whit2_hat(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, interm:
     wtol += w[i]
   end
   cve::FT = sqrt(tol / wtol) # sqrt(sum(r .* r) / n)
-  cve
+  return cve
 end

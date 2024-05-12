@@ -79,7 +79,7 @@ function cal_cve(U2::AbstractMatrix, d::AbstractVector,
     wsum += w[i]
   end
   cve::FT = sqrt(tol / wsum) # sqrt(sum(r .* r) / n)
-  cve
+  return cve
 end
 
 # according to hat and return the generalized cross validation
