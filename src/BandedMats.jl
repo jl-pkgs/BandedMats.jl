@@ -10,6 +10,7 @@ export force_band!, force_sym!
 export force_lower!, force_upper!
 
 include("DataType.jl")
+include("band_zip.jl")
 include("utilize.jl")
 include("LU.jl")
 include("LU_band.jl")
