@@ -17,13 +17,12 @@ include("utilize.jl")
 include("LU.jl")
 include("LU_band.jl")
 include("LU_solve.jl")
+include("LDL_band.jl")
 include("LDL_solve.jl")
-include("LDL.jl")
 
 include("tools.jl")
 include("inv_diag.jl")
 
-include("whit_band.jl")
 include("Whittaker/Whittaker.jl")
 
 

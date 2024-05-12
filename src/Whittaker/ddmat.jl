@@ -7,10 +7,10 @@ function ddmat_band(x::AbstractVector{T}, d::Integer=2) where {T}
     return BandedMat(ones(T, n, 1), 0, 0; size=(n, n))
   else
     R = diff(ddmat_band(x, d - 1))
-    (; q) = R
+    q::Int = R.q
 
-    for i = 1:n-d
-      dx = x[i+d] - x[i]
+    @inbounds for i = 1:n-d
+      dx = (x[i+d] - x[i]) / d
       for j = 1:q+1
         R.data[i, j] /= dx
       end
@@ -28,7 +28,7 @@ function ddmat_full(x::AbstractVector{T}, d::Integer=2) where {T}
     m = size(R, 2)
 
     for i = 1:n-d
-      dx = x[i+d] - x[i]
+      dx = (x[i+d] - x[i]) / d
       for j = i:min(i + d, m)
         R[i, j] /= dx
       end

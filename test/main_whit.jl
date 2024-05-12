@@ -35,9 +35,9 @@ function WHIT(y::AbstractVector, w::AbstractVector, x::AbstractVector;
   D = ddmat(x, p)
 
   W = spdiagm(w)
-  A = W + λ * D' * D
-
-  # L = cholesky(A).L # Matrix
+  A = W + λ * D' * D  
+  # A2 = Matrix(sparse(A))
+  # L = cholesky(A2).L # Matrix
   L = cholesky(A, perm=1:n).L # sparse
   z = L' \ (L \ (w .* y))
   z

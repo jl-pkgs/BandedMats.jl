@@ -1,7 +1,7 @@
 abstract type AbstractBandMat{T} end
 
 Base.@kwdef struct BandMat{T} <: AbstractBandMat{T}
-  data::AbstractMatrix{T} # how to check value
+  data::Matrix{T} # how to check value
   p::Int
   q::Int
   size::Tuple{Int64,Int64} = Base.size(data)
@@ -13,7 +13,7 @@ Base.@kwdef struct BandMat{T} <: AbstractBandMat{T}
 end
 
 Base.@kwdef struct BandedMat{T} <: AbstractBandMat{T}
-  data::AbstractMatrix{T} # B
+  data::Matrix{T} # B
   p::Int
   q::Int
   size::Tuple{Int64,Int64} = size(data) # original data size
@@ -33,7 +33,7 @@ end
 
 # abstract type BandedL2{T} <: BandedMat{T} end
 Base.@kwdef struct BandedL{T} <: AbstractBandMat{T}
-  data::AbstractMatrix{T} # B
+  data::Matrix{T} # B
   p::Int
   size::Tuple{Int64,Int64} = Base.size(data)
   type::String = "kong" # "kong", "lapack"
@@ -50,7 +50,7 @@ Base.@kwdef struct BandedL{T} <: AbstractBandMat{T}
 end
 
 Base.@kwdef struct SymBandedMat{T} <: AbstractBandMat{T}
-  data::AbstractMatrix{T} # how to check value
+  data::Matrix{T} # how to check value
   p::Int
   size::Tuple{Int64,Int64} = Base.size(data)
   type::String = "kong" # "kong", "lapack"

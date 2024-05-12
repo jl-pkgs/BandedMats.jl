@@ -123,22 +123,18 @@ end
 
 R = U' * U，同时将结果保存为下三角
 """
-function U_sq(x::BandedMat{T}) where {T}
-  # 转成下三角
+function BandedU_sq!(R::BandedL{T}, x::BandedMat{T}) where {T}
   (; q) = x
-  p = 0
+  p::Int = 0
+  n::Int, m::Int = x.size
   A = x.data
-  n, m = x.size
-  # size = (m, m)
-  # R = zeros(T, m, m)
-  # R = BandedMat(zeros(T, m, q+1), q, 0; size=(m, m))
-  R = BandedL(zeros(T, m, q+1), q; size=(m, m))
   r = R.data
-  
-  for i = 1:n
+  # R = zeros(T, m, m)
+
+  @inbounds for i = 1:m
     for j = i:min(i + q, m)
       k_min = max(i - q, j - q, 1)
-      k_max = min(i, j)
+      k_max = min(i, j, n)
       for k = k_min:k_max
         r[j, i-j+q+1] += A[k, i-k+p+1] * A[k, j-k+p+1]
       end
@@ -147,4 +143,12 @@ function U_sq(x::BandedMat{T}) where {T}
   R
 end
 
-export U_sq
+function BandedU_sq(x::BandedMat{T}) where {T}
+  n, m = x.size
+  q = x.q
+  R = BandedL(zeros(T, m, q+1), q; size=(m, m))
+  BandedU_sq!(R, x)
+end
+
+
+export BandedU_sq
