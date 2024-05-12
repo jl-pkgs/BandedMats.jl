@@ -3,6 +3,24 @@ function Base.diff(x::AbstractMatrix, d::Integer=1)
   d >= 2 ? diff(D, d - 1) : D
 end
 
+# function Base.diff(x::SparseMatrixCSC, d::Integer=1)
+#   D = x[2:end, :] .- x[1:end-1, :]
+#   d >= 2 ? diff(D, d - 1) : D
+# end
+
+# speye(n) = SparseArrays.sparse(I, n, n)
+
+# function ddmat(x::AbstractVector, d::Integer=2)
+#   n = length(x)
+#   if d == 0
+#     return speye(n)
+#   else
+#     return diff(ddmat(x, d - 1))
+#   end
+# end
+
+
+
 # """
 # 代数余子式(algebraic complement)
 # """

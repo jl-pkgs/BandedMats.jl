@@ -40,8 +40,8 @@ function GEN_A(x::AbstractVector{T1}, w::AbstractVector{T2}; λ=2.0, d=3) where 
   # BandedL(data, d; size=(n, n))
 end
 
-function GEN_A!(A::BandedL{T}, x::AbstractVector{T}, w::AbstractVector{T};
-  λ=2.0, p::Int=3) where {T}
+function GEN_A!(A::BandedL{T}, x::AbstractVector{T2}, w::AbstractVector{T};
+  λ=2.0, p::Int=3) where {T<:Real, T2<:Real}
 
   n = length(x)
   data::Matrix{T} = A.data

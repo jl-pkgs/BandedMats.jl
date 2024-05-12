@@ -22,6 +22,9 @@ include("tools.jl")
 include("inv_diag.jl")
 
 include("whit_band.jl")
+include("Whittaker/Whittaker.jl")
+
+
 Banded = BandedMat
 Band = BandMat
 

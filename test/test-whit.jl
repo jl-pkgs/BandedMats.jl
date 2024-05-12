@@ -1,37 +1,22 @@
-using Test
-using LinearAlgebra
-using SparseArrays
+# using Pkg
+# Pkg.activate(".")
+include("main_whit.jl")
 
-# ddmat(x::AbstractVector, d::Integer=2) = diff(diagm(x), d)
-ddmat(x::AbstractVector, d::Integer=2) = diff(spdiagm(x), d)
-
-function WHIT(y::AbstractVector, w::AbstractVector; kw...)
-  WHIT(y, w, 1:length(y); kw...)
-end
-
-function WHIT(y::AbstractVector, w::AbstractVector, x::AbstractVector;
-  λ=2.0, p=2)
-  n = length(y)
-  D = ddmat(x, p)
-
-  W = spdiagm(w)
-  A = W + λ * D' * D
-
-  # L = cholesky(A).L # Matrix
-  L = cholesky(A, perm=1:n).L # sparse
-  z = L' \ (L \ (w .* y))
-  z
-end
-
-
-@testset "whit_band" begin
+@testset "whit" begin
   n = 100
   y = rand(n)
   w = rand(n)
-  x = rand(n)
+  # w = fill(1.0, n)
+
+  x = 1:n
   λ, p = 2.0, 3
 
-  @time z1 = whit_band(y, w, x; λ=2.0, p=3)
-  @time z2 = WHIT(y, w, x; λ=2.0, p=3)
-  @test maximum(abs.(z1 - z2)) <= 1e-10
+  # @time z1 = whit_band(y, w, x; λ=2.0, p=3)
+  @time z = WHIT(y, w, x; λ=2.0, p=3)
+  @time z3, cve = whit3(y, w; lambda=2.0, include_cve=false)
+  @test maximum(abs.(z - z3)) <= 1e-10
+
+  @time z = WHIT(y, w, x; λ=2.0, p=2)
+  @time z2, cve2 = whit2(y, w; lambda=2.0, include_cve=false)
+  @test maximum(abs.(z - z2)) <= 1e-10
 end
