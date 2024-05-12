@@ -10,6 +10,7 @@ include("test-LDL.jl")
 include("test-LU.jl")
 include("test-solve.jl")
 
+include("test-ddmat.jl")
 include("test-whit.jl")
 # # 代数余子式
 # @testset "complement" begin

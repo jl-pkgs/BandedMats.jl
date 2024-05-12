@@ -4,7 +4,6 @@ authors = ["Dongdong Kong <kongdd@users.noreply.github.com>"]
 version = "0.1.2"
 
 [deps]
-Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 
 [weakdeps]

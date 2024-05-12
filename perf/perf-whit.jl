@@ -26,7 +26,7 @@ function WHIT(y::AbstractVector, w::AbstractVector, x::AbstractVector;
 end
 
 
-n = 1000
+n = 100
 y = rand(n)
 w = rand(n)
 x = rand(n)
@@ -35,10 +35,12 @@ x = rand(n)
 ## 测试运行速度
 interm = IntermBand{Float64}(; n=length(y), p=3)
 # @profview 
-# @time 
+# @time
+
+# 时间都浪费在生成D矩阵了
 @time for i = 1:100_000
-  z1 = whit_band(y, w, x; λ=2.0, p=3, interm)
-  # z2 = WHIT(y, w, x; λ=2.0, p=3)
+  # z1 = whit_band(y, w, x; λ=2.0, p=3, interm)
+  z2 = WHIT(y, w, x; λ=2.0, p=3)
 end
 
 @btime z1 = whit_band($y, $w, $x; λ=2.0, p=3, interm);
