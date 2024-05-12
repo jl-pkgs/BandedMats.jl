@@ -3,13 +3,21 @@
 Base.@kwdef mutable struct IntermBand{T}
   n::Int
   p::Int = 3
-  # D2::BandedL{T} = BandedL(zeros(T, n, p + 1), p; size=(n, n))
+  
+  # 对称矩阵
+  "D2 = D' * D"
+  D2::BandedL{T} = BandedU_sq(ddmat_band(1:n, p))
+
+  "A = W + λ * D' * D"
   A::BandedL{T} = BandedL(zeros(T, n, p + 1), p; size=(n, n))
 
+  "L, d = LDL_band(A)"
   L::BandedL{T} = BandedL(zeros(T, n, p), p; size=(n, n))
   d::Vector{T} = zeros(T, n)
+
   z::Vector{T} = zeros(T, n)
 end
+
 
 """
 A = W + λ * D' * D
@@ -58,11 +66,17 @@ function whit_band(y::AbstractVector{T}, w;
   λ::Real=2.0, p::Int=3, interm=nothing) where {T}
 
   interm === nothing && (interm = IntermBand{T}(; n=length(y), p))
-  @unpack L, d, A, z = interm
+  @unpack D2, L, d, A, z = interm
 
-  GEN_A!(A, x, w; λ, p)
-  # L, d = LDL_band(A)
-  # LDL_solve(L, d, y .* w)
+  "A = W + λ * D' * D"
+  data = A.data
+  @inbounds for i = 1:length(y)
+    for j = 1:p+1
+      data[i, j] = λ * D2.data[i, j]
+    end
+    data[i, p+1] += w[i]
+  end
+  
   LDL_band!(L, d, A)
   LDL_solve!(z, L, d, y .* w)
   return z

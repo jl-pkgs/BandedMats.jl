@@ -17,11 +17,11 @@ include("main_whit.jl")
   @test z ≈ z_band
 
   # whit3
-  @time z3, cve = whit3(y, w; lambda=2.0, include_cve=false)
+  @time z3, cve = whit3(y, w; λ=2.0, include_cve=false)
   @test maximum(abs.(z - z3)) <= 1e-10
 
   # whit2
   @time z = WHIT(y, w, x; λ=2.0, p=2)
-  @time z2, cve2 = whit2(y, w; lambda=2.0, include_cve=false)
+  @time z2, cve2 = whit2(y, w; λ=2.0, include_cve=false)
   @test maximum(abs.(z - z2)) <= 1e-10
 end

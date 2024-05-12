@@ -1,15 +1,15 @@
 function whit3(y::AbstractVector{T1}, w::AbstractVector{T2};
-  lambda::Real, include_cve=true) where {T1<:Real,T2<:Real}
+  λ::Real, include_cve=true) where {T1<:Real,T2<:Real}
 
   interm = interm_whit{promote_type(T1, T2)}(; n=length(y))
 
-  whit3!(y, w, lambda, interm; include_cve)
+  whit3!(y, w, λ, interm; include_cve)
   # interm.z, cve
 end
 
-function whit3!(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, lambda::Real, interm::interm_whit{FT};
+function whit3!(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, λ::Real, interm::interm_whit{FT};
   include_cve=true) where {FT<:Real}
-  λ = FT(lambda)
+  λ = FT(λ)
   @unpack z, c, d, e, f = interm
 
   d[1] = w[1] + λ # d是分母

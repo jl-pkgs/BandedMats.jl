@@ -121,10 +121,12 @@ end
 """
     U_sq(x::BandedMat{T})
 
+计算时，只使用了上三角的数据。
+
 R = U' * U，同时将结果保存为下三角
 """
 function BandedU_sq!(R::BandedL{T}, x::BandedMat{T}) where {T}
-  (; q) = x
+  q::Int = x.q
   p::Int = 0
   n::Int, m::Int = x.size
   A = x.data

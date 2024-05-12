@@ -7,11 +7,10 @@ whit2(y, w; lambda)
 whit2(y, w; lambda)
 """
 function whit2(y::AbstractVector{T1}, w::AbstractVector{T2};
-  lambda::Real, include_cve=true) where {T1<:Real,T2<:Real}
+  λ::Real, include_cve=true) where {T1<:Real,T2<:Real}
 
   interm = interm_whit{promote_type(T1, T2)}(; n=length(y))
-
-  whit2!(y, w, lambda, interm; include_cve) # z, h, cve
+  whit2!(y, w, λ, interm; include_cve) # z, h, cve
 end
 
 """
@@ -27,10 +26,10 @@ let `b = Ux`, `Lb = y`
 'Smoothing and interpolation with finite differences' [Eilers P. H. C, 1994]
 (URL: http://dl.acm.org/citation.cfm?id=180916)
 """
-function whit2!(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, lambda::Real, interm::interm_whit{FT};
+function whit2!(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, λ::Real, interm::interm_whit{FT};
   include_cve=true) where {FT<:Real}
 
-  λ = FT(lambda)
+  λ = FT(λ)
   
   @unpack z, c, d, e = interm
 

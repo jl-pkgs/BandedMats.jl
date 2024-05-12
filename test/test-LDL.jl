@@ -1,7 +1,6 @@
 using LinearAlgebra
 using BandedMats
 using Test
-mat_equal(x, y) = @test maximum(abs.(x - y)) <= 1e-8
 
 @testset "LDL" begin
   n = 10

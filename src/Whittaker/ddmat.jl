@@ -9,7 +9,7 @@ function ddmat_band(x::AbstractVector{T}, d::Integer=2) where {T}
   fill!(R, 0)
   R[1:n, 1] .= 1
 
-  for k = 1:d
+  @inbounds for k = 1:d
     for i = 1:n-k
       dx = (x[i+k] - x[i]) / k
       R[i, 1] = -R[i, 1] / dx
@@ -20,7 +20,6 @@ function ddmat_band(x::AbstractVector{T}, d::Integer=2) where {T}
       end
     end
   end
-
   BandedMat(R[1:n-d, :], 0, d; size=(n - d, n))
   # B
 end

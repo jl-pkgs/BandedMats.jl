@@ -38,10 +38,17 @@ interm = IntermBand{Float64}(; n=length(y), p=3)
 # @time
 
 # 时间都浪费在生成D矩阵了
+# @time 
 @time for i = 1:100_000
-  # z1 = whit_band(y, w, x; λ=2.0, p=3, interm)
-  z2 = WHIT(y, w, x; λ=2.0, p=3)
+  # z1 = whit_band(y, w; λ=2.0, p=3, interm)
+  z2 = whit3(y, w; λ=2.0, include_cve=false)
+  # z2 = WHIT(y, w, x; λ=2.0, p=3)
 end
 
-@btime z1 = whit_band($y, $w, $x; λ=2.0, p=3, interm);
-@btime z2 = WHIT($y, $w, $x; λ=2.0, p=3);
+z1 = whit_band(y, w; λ=2.0, p=3, interm)
+z2 = whit3(y, w; λ=2.0, include_cve=false)[1]
+z1 - z2
+
+# @btime z1 = whit_band($y, $w, $x; λ=2.0, p=3, interm);
+@btime z1 = whit_band($y, $w; λ=2.0, p=3, interm=$interm);
+@btime z2 = whit3($y, $w; λ=2.0, include_cve=false);
