@@ -1,11 +1,11 @@
-function copy_L2U!(A)
-  for i = axes(A, 1)
-    for j = i+1:size(A, 2)
-      A[i, j] = A[j, i]
-    end
-  end
-  A
-end
+# function copy_L2U!(A)
+#   for i = axes(A, 1)
+#     for j = i+1:size(A, 2)
+#       A[i, j] = A[j, i]
+#     end
+#   end
+#   A
+# end
 
 # """
 # 代数余子式(algebraic complement)

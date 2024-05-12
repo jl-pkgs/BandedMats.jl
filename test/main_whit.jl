@@ -30,15 +30,27 @@ function WHIT(y::AbstractVector, w::AbstractVector; kw...)
 end
 
 function WHIT(y::AbstractVector, w::AbstractVector, x::AbstractVector;
-  λ=2.0, p=2)
+  λ=2.0, p=2, include_cve=false)
+
   n = length(y)
   D = ddmat(x, p)
 
   W = spdiagm(w)
-  A = W + λ * D' * D  
+  A = W + λ * D' * D
   # A2 = Matrix(sparse(A))
   # L = cholesky(A2).L # Matrix
   L = cholesky(A, perm=1:n).L # sparse
   z = L' \ (L \ (w .* y))
-  z
+
+  ## also include cve
+  cve = -999.0
+  if include_cve
+    inv_L = Matrix(sparse(L))^-1 # 这一步可能消耗了较多的时间
+    H = inv_L' * inv_L * W # 借力cholesky
+
+    h = diag(H)
+    r = @. (y - z) / (1 - h)
+    cve = sqrt(sum(r .* r .* w) / sum(w))
+  end
+  z, cve
 end

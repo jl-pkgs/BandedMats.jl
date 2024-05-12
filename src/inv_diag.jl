@@ -28,6 +28,10 @@ B^(-1) = B * U^(-1)' + (1 - U) * B^(-1) # Hutchinson 1985, Eq. 3.3
   0  0  0
 ]
 
+# Examples
+```julia
+S = inv_diag(L, d)
+```
 > Dongdong Kong, CUG, 2024-05-07
 
 # References
@@ -63,7 +67,33 @@ function inv_diag(BL::Union{BandedMat{T},BandedL{T}}, d::AbstractVector{T}) wher
   return B[:, 1]
 end
 
-# 上三角的情景
+"""
+A = U' D U (A = L D L')
+U = L' # ! note
+"""
+function cal_diag(U2::AbstractMatrix{T}, d::AbstractVector{T}; m=3) where {T<:Real}
+  n = length(d)
+  B = zeros(T, n, m + 1)
+  B[n, 1] = 1 / d[n]
+
+  for i = n-1:-1:1
+    B[i, 1] = 1 / d[i]
+    for l = 1:min(m, n - i)
+      B[i, 1+l] = 0
+      for k = 1:min(n - i, m)
+        _i, _j = k <= l ? (i + k, l - k + 1) : (i + l, k - l + 1)
+        B[i, 1+l] -= U2[i, k] * B[_i, _j]
+      end
+      B[i, 1] -= U2[i, l] * B[i, 1+l]
+    end
+  end
+  B[:, 1]
+end
+
+"""
+A = L D L'
+U = D L'
+"""
 function inv_diag(U2::AbstractMatrix, d::AbstractVector{T}; m::Int) where {T<:Real}
   n = size(U2, 1)
   B = zeros(T, n, m + 1)
@@ -91,5 +121,4 @@ function inv_diag(U2::AbstractMatrix, d::AbstractVector{T}; m::Int) where {T<:Re
   return B[:, 1]
 end
 
-
-export inv_diag
+export inv_diag, cal_diag

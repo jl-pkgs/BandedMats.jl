@@ -3,7 +3,7 @@
 Base.@kwdef mutable struct IntermBand{T}
   n::Int
   p::Int = 3
-  
+
   # 对称矩阵
   "D2 = D' * D"
   D2::BandedL{T} = BandedU_sq(ddmat_band(1:n, p))
@@ -76,7 +76,7 @@ function whit_band(y::AbstractVector{T}, w;
     end
     data[i, p+1] += w[i]
   end
-  
+
   LDL_band!(L, d, A)
   LDL_solve!(z, L, d, y .* w)
   return z

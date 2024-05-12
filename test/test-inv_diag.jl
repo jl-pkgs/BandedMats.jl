@@ -17,4 +17,8 @@
   B = BandedL(A, p; zipped=false)
   BL, d = LDL_band(B)
   @test inv_diag(BL, d) ≈ diag(inv(A))
+
+  U = l'
+  U2 = BandedMat(U, 0, q; zipped=false).data[:, 2:end]
+  @test cal_diag(U2, d; m=q) ≈ diag(inv(A))
 end

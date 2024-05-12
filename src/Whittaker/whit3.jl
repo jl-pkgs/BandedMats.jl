@@ -59,19 +59,17 @@ function whit3!(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, λ::Real, 
   @fastmath for i = (n-3):-1:1
     z[i] = z[i] / d[i] - c[i] * z[i+1] - e[i] * z[i+2] - f[i] * z[i+3]
   end
-  
-  cve::FT = include_cve ? whit3_hat(y, w, interm) : FT(-999.0)  
+
+  cve::FT = include_cve ? whit3_hat(y, w, interm) : FT(-999.0)
   z, cve
 end
 
-# according to hat and return the generalized cross validation
-function whit3_hat(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, interm::interm_whit{FT}) where {FT<:Real}
-  @unpack e, c, f, d = interm
-  @unpack z, n = interm
 
-  U2 = hcat(c, e, f)
-  s0 = cal_diag(U2, d; m=3)
-
+function cal_cve(U2::AbstractMatrix, d::AbstractVector,
+  z::AbstractVector{FT}, y::AbstractVector{FT}, w::AbstractVector; p=3) where {FT<:Real}
+  n = length(y)
+  # s = inv_diag(U2, d; m=p)
+  s0 = cal_diag(U2, d; m=p)
   tol = FT(0.0)
   wsum = FT(0.0)
   @inbounds for i = 1:n
@@ -84,26 +82,12 @@ function whit3_hat(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, interm:
   cve
 end
 
-function cal_diag(U2::AbstractMatrix{T}, d::AbstractVector{T}; m=3) where {T<:Real}
-  # U2: 节省空间的存储方法, [n, m]
-  n = length(d)
-  # S = variables(:S, 1:n, 1:m+1) # m=2,3个临时变量已足够
-  # fill!(S, 0)
-  B = zeros(T, n, m + 1)
-  B[n, 1] = 1 / d[n]
-
-  for i = n-1:-1:1
-    B[i, 1] = 1 / d[i]
-    for l = 1:min(m, n - i)
-      B[i, 1+l] = 0
-      for k = 1:min(n - i, m)
-        _i, _j = k <= l ? (i + k, l - k + 1) : (i + l, k - l + 1)
-        B[i, 1+l] -= U2[i, k] * B[_i, _j]
-      end
-      B[i, 1] -= U2[i, l] * B[i, 1+l]
-    end
-  end
-  B[:, 1]
+# according to hat and return the generalized cross validation
+function whit3_hat(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, interm::interm_whit{FT}) where {FT<:Real}
+  @unpack z, e, c, f, d = interm
+  U2 = hcat(c, e, f)
+  cal_cve(U2, d, z, y, w; p=3)
 end
+
 
 export whit3_hat
