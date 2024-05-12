@@ -84,52 +84,26 @@ function whit3_hat(y::AbstractVector{<:Real}, w::AbstractVector{<:Real}, interm:
   cve
 end
 
-"""
-  retrieve the diagonal of the inverse of a banded matrix B
-
-一种`带状矩阵对角阵`的快速算法，用于`Whittaker smoother`求解。
-
-```math
-B = (U' * D * U)                        # Hutchinson 1985, Eq. 3.1
-B^(-1) = B * U^(-1)' + (1 - U) * B^(-1) # Hutchinson 1985, Eq. 3.3
-```
-
-# Arguments
-- `U`: [
-  1 c₁ e₁ f₁ 0
-  0 1  c₂ e₂ f₂
-  0 0  1  c₃ e₃
-  0 0  0  1  c₄
-  0 0  0  0  1
-]
-
-Dongdong Kong, CUG, 2024-05-07
-"""
 function cal_diag(U2::AbstractMatrix{T}, d::AbstractVector{T}; m=3) where {T<:Real}
   # U2: 节省空间的存储方法, [n, m]
   n = length(d)
   # S = variables(:S, 1:n, 1:m+1) # m=2,3个临时变量已足够
   # fill!(S, 0)
-  S = zeros(T, n, m + 1)
-  S[n, 1] = 1 / d[n]
+  B = zeros(T, n, m + 1)
+  B[n, 1] = 1 / d[n]
 
   for i = n-1:-1:1
-    S[i, 1] = 1 / d[i]
+    B[i, 1] = 1 / d[i]
     for l = 1:min(m, n - i)
-      S[i, 1+l] = 0
+      B[i, 1+l] = 0
       for k = 1:min(n - i, m)
-        # if k <= l
-        #   S[i, 1+l] -= U[i, i+k] * S[i+k, l-k+1]
-        # else
-        #   S[i, 1+l] -= U[i, i+k] * S[i+l, k-l+1]
-        # end
         _i, _j = k <= l ? (i + k, l - k + 1) : (i + l, k - l + 1)
-        S[i, 1+l] -= U2[i, k] * S[_i, _j]
+        B[i, 1+l] -= U2[i, k] * B[_i, _j]
       end
-      S[i, 1] -= U2[i, l] * S[i, 1+l]
+      B[i, 1] -= U2[i, l] * B[i, 1+l]
     end
   end
-  S[:, 1]
+  B[:, 1]
 end
 
 export whit3_hat

@@ -1,4 +1,5 @@
 using Test
+using BandedMats
 # using Symbolics
 # import Symbolics: scalarize, variables
 
@@ -29,6 +30,28 @@ end
   force_upper!(A) 
   @test A == diagm(diag(A))
 end
+
+@testset "diff" begin
+  # size, bandwidth = (4, 5), (1, 3)
+  function test_diff(size, bandwidth)
+    A = rand(size...)
+    p, q = bandwidth
+    force_band!(A, p, q)
+    b = BandedMat(A, p, q; zipped=false)
+    
+    d = 2
+    r = diff(b, d)
+    @test Matrix(r) ≈ diff(A, d)
+  end
+
+  test_diff((4, 5), (1, 3))
+
+  test_diff((5, 5), (1, 2))
+  test_diff((5, 5), (2, 1))
+  test_diff((10, 4), (2, 1))
+  test_diff((4, 10), (2, 1))
+end
+
 
 @testset "transpose" begin
   A = rand(5, 5)

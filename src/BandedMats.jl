@@ -11,6 +11,8 @@ export force_lower!, force_upper!
 
 include("DataType.jl")
 include("band_zip.jl")
+include("Ops.jl")
+
 include("utilize.jl")
 include("LU.jl")
 include("LU_band.jl")
