@@ -3,7 +3,7 @@ export ddmat_full, ddmat_band
 
 function ddmat_band(x::AbstractVector{T}, d::Integer=2) where {T}
   n = length(x)
-  B = BandedMat(zeros(n, d + 1), 0, d; size=(n, n))
+  # B = BandedMat(zeros(n, d + 1), 0, d; size=(n, n))
   R = zeros(n, d + 1)
 
   fill!(R, 0)

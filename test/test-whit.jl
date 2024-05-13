@@ -24,8 +24,11 @@ include("main_whit.jl")
   @test cve3 ≈ cve
 
   # whit2
-  @time z, cve = WHIT(y, w, x; λ=2.0, p=2)
-  @time z2, cve2 = whit2(y, w; λ=2.0, include_cve=false)
+  @time _z, _cve = whit2_Frasso2015(y, w; λ=2.0, include_cve=true)
+  @time z, cve = WHIT(y, w, x; λ=2.0, p=2, include_cve=true)
+  @time z2, cve2 = whit2(y, w; λ=2.0, include_cve=true)
   @test maximum(abs.(z - z2)) <= 1e-10
+  @test maximum(abs.(_z - z2)) <= 1e-10
   @test cve ≈ cve2
+  @test _cve ≈ cve2
 end
