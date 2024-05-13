@@ -18,6 +18,11 @@ x = L'^-1 D^-1 θ
 LDL_solve(BL, d, b)
 ```
 """
+function LDL_solve(BL::BandedL{T}, d::AbstractVector{T}, b::AbstractArray) where {T}
+  z = similar(b)
+  LDL_solve!(z, BL, d, b)
+end
+
 function LDL_solve!(z::AbstractVector{T}, BL::BandedL{T}, d::AbstractVector{T}, b::AbstractArray) where {T}
   # [i, j] => [i, j - i + p + 1] # L, A
   # [i, j] => [i, j - i + 1]     # U
@@ -46,10 +51,6 @@ function LDL_solve!(z::AbstractVector{T}, BL::BandedL{T}, d::AbstractVector{T}, 
   return z
 end
 
-function LDL_solve(BL::BandedL{T}, d::AbstractVector{T}, b::AbstractArray) where {T}
-  z = similar(b)
-  LDL_solve!(z, BL, d, b)
-end
 
 function Base.:\(x::SymBanded{T}, b::AbstractVector{T}) where {T}
   L, d = LDL_band(x)
