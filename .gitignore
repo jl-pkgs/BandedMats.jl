@@ -6,3 +6,6 @@ Manifest.toml
 *debug*
 
 docs/build
+.ipynb_checkpoints
+*.pptx
+*.pdf
